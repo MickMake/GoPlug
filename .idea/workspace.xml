@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4c6747d4-f6dc-4927-a9dc-f0c24d8ced9c" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file:///usr/local/go" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2V8SliKwMrrpWIiajSR2ZdZrwfF" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Volumes/home/mick&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
+  }
+}</component>
+  <component name="RunManager" selected="Go Build.master">
+    <configuration name="master" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="GoPlug" />
+      <working_directory value="$PROJECT_DIR$/examples/master" />
+      <kind value="DIRECTORY" />
+      <package value="github.com/MickMake/GoPlug" />
+      <directory value="$PROJECT_DIR$/examples/master" />
+      <filePath value="$PROJECT_DIR$" />
+      <output_directory value="$PROJECT_DIR$/examples/master" />
+      <method v="2">
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
+      </method>
+    </configuration>
+    <configuration name="plugin1" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="GoPlug" />
+      <working_directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
+      <go_parameters value="build -buildmode=plugin -o plugin1.so -gcflags 'all=-N -l' plugin1.go" />
+      <kind value="DIRECTORY" />
+      <package value="github.com/MickMake/GoPlug" />
+      <directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
+      <filePath value="$PROJECT_DIR$" />
+      <output_directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
+      <option name="run" value="false" />
+      <method v="2">
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
+      </method>
+    </configuration>
+    <configuration name="plugin1.cmd" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="GoPlug" />
+      <working_directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
+      <kind value="DIRECTORY" />
+      <package value="github.com/MickMake/GoPlug" />
+      <directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
+      <filePath value="$PROJECT_DIR$" />
+      <output_directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
+      <method v="2">
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
+      </method>
+    </configuration>
+    <configuration name="plugin2" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="GoPlug" />
+      <working_directory value="$PROJECT_DIR$/examples/plugins/plugin2" />
+      <go_parameters value="build -buildmode=plugin -o plugin2.so -gcflags 'all=-N -l' plugin2.go" />
+      <kind value="DIRECTORY" />
+      <package value="github.com/MickMake/GoPlug" />
+      <directory value="$PROJECT_DIR$/examples/plugins/plugin2" />
+      <filePath value="$PROJECT_DIR$" />
+      <output_directory value="$PROJECT_DIR$/examples/plugins/plugin2" />
+      <option name="run" value="false" />
+      <method v="2">
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
+      </method>
+    </configuration>
+    <configuration name="plugin3" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="GoPlug" />
+      <working_directory value="$PROJECT_DIR$/examples/plugins/" />
+      <go_parameters value="build -buildmode=plugin -o plugin3.so -gcflags 'all=-N -l' plugin3.go" />
+      <kind value="DIRECTORY" />
+      <package value="github.com/MickMake/GoPlug" />
+      <directory value="$PROJECT_DIR$/examples/plugins/" />
+      <filePath value="$PROJECT_DIR$" />
+      <output_directory value="$PROJECT_DIR$/examples/plugins/" />
+      <option name="run" value="false" />
+      <method v="2">
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.master" />
+      <item itemvalue="Go Build.plugin1" />
+      <item itemvalue="Go Build.plugin1.cmd" />
+      <item itemvalue="Go Build.plugin2" />
+      <item itemvalue="Go Build.plugin3" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>108</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>107</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/manager.go</url>
+          <line>126</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

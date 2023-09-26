@@ -1,13 +1,16 @@
 package utils
 
 import (
-	"os"
+	"encoding/json"
 	"path/filepath"
-	"time"
-
-	"github.com/MickMake/GoPlug/Return"
+	"reflect"
+	"regexp"
+	"runtime"
+	"strings"
 
 	"github.com/MickMake/GoUnify/Only"
+
+	"github.com/MickMake/GoPlug/utils/Return"
 )
 
 const (
@@ -21,123 +24,211 @@ const (
 	PluginSourceModeRemote = "remote_git"
 )
 
-// FileExists check the existence of the specified file
-// If file exists, return true
-func FileExists(path string) (time.Time, Return.Error) {
-	var mod time.Time
-	var err Return.Error
+func GetTypeName(ref any) string {
+	var name string
 
 	for range Only.Once {
-		if path == "" {
-			err.SetError("File '%s' is empty", path)
+		kind := reflect.ValueOf(ref).Kind()
+		if kind == reflect.Invalid {
+			name = "nil"
 			break
 		}
+		// name = reflect.TypeOf(ref).String()
+		// if ref == nil || ((kind == reflect.Ptr) && reflect.ValueOf(ref).IsNil()) {
+		// 	name = "nil"
+		// 	break
+		// }
 
-		fi, e := os.Stat(path)
-		if e != nil {
-			err.SetError("Error with file '%s': %v", path, e)
-			break
-		}
-
-		if fi.IsDir() {
-			err.SetError("File '%s' is a directory", path)
-			break
-		}
-
-		mod = fi.ModTime()
-		err = Return.Ok
+		name = reflect.TypeOf(ref).String()
+		name = strings.ReplaceAll(name, "interface {}", "any")
 	}
 
-	return mod, err
+	return name
 }
 
-// DirExists check the existence of the specified dir
-// If dir exists, return true
-func DirExists(dir string) (time.Time, Return.Error) {
-	var mod time.Time
-	var err Return.Error
+func GetTypeKind(ref any) reflect.Kind {
+	return reflect.ValueOf(ref).Kind()
+}
 
-	for range Only.Once {
-		if dir == "" {
-			err.SetError("Directory '%s' is empty", dir)
-			break
-		}
-
-		fi, e := os.Stat(dir)
-		if e != nil {
-			err.SetError("Error with directory '%s': %v", dir, e)
-			break
-		}
-
-		if !fi.IsDir() {
-			err.SetError("File '%s' is NOT a directory", dir)
-			break
-		}
-
-		mod = fi.ModTime()
-		err = Return.Ok
+func IsTypeOfName(ref any, name string) bool {
+	if reflect.TypeOf(ref).String() == name {
+		return true
 	}
-
-	return mod, err
+	return false
 }
 
-// IsDir checks if the file is a dir
-func IsDir(filePath string) bool {
-	fi, err := os.Stat(filePath)
-
-	return err == nil && fi.Mode().IsDir()
-}
-
-// ReadFile - read file
-func ReadFile(filePath string) ([]byte, Return.Error) {
-	var data []byte
-	var err Return.Error
-
+func GetStructName(ref any) string {
+	var name string
 	for range Only.Once {
-		fi, e := os.Stat(filePath)
+		if ref == nil {
+			name = "nil"
+			break
+		}
+
+		name = reflect.TypeOf(ref).String()
+		re := regexp.MustCompile(`^.*?\.\(\*([A-Za-z0-9_-]+)\)(\.[A-Za-z0-9_]+)`)
+		if re.MatchString(name) {
+			a := re.FindStringSubmatch(name)
+			if len(a) >= 2 {
+				name = a[1] + a[2]
+				break
+			}
+		}
+
+		re = regexp.MustCompile(`^.*?\.([A-Za-z0-9_]+)`)
+		if re.MatchString(name) {
+			a := re.FindStringSubmatch(name)
+			if len(a) >= 1 {
+				name = a[1]
+				break
+			}
+		}
+	}
+	return name
+}
+
+func GetFunctionName(ref any) string {
+	var name string
+	for range Only.Once {
+		if ref == nil {
+			name = "nil"
+			break
+		}
+
+		name = reflect.TypeOf(ref).String()
+		re := regexp.MustCompile(`^.*?\.\(\*([A-Za-z0-9_-]+)\)(\.[A-Za-z0-9_]+)`)
+		if re.MatchString(name) {
+			a := re.FindStringSubmatch(name)
+			if len(a) >= 2 {
+				name = a[1] + a[2]
+				break
+			}
+		}
+
+		re = regexp.MustCompile(`^.*?\.([A-Za-z0-9_]+)`)
+		if re.MatchString(name) {
+			a := re.FindStringSubmatch(name)
+			if len(a) >= 1 {
+				name = a[1]
+				break
+			}
+		}
+	}
+	return name
+}
+
+func GetFunctionNameFromPointer(f interface{}) string {
+	p := reflect.ValueOf(f).Pointer()
+	rf := runtime.FuncForPC(p)
+	name := rf.Name()
+	name = filepath.Base(name)
+	_, method := SeparatePackageAndFunction(name)
+	return method
+}
+
+func GetPackageAndFunctionNameFromPointer(f interface{}) (string, string) {
+	p := reflect.ValueOf(f).Pointer()
+	rf := runtime.FuncForPC(p)
+	name := rf.Name()
+	name = filepath.Base(name)
+	pkg, method := SeparatePackageAndFunction(name)
+	return pkg, method
+}
+
+func SeparatePackageAndFunction(name string) (string, string) {
+	var pkg string
+	var method string
+	for range Only.Once {
+		re := regexp.MustCompile(`^(.*?)\.([A-Za-z0-9_]+)`)
+		if re.MatchString(name) {
+			a := re.FindStringSubmatch(name)
+			if len(a) >= 2 {
+				pkg = a[1]
+				method = a[2]
+				break
+			}
+		}
+	}
+	return pkg, method
+}
+
+func GetCallerFunctionName(depth int) string {
+	var name string
+	for range Only.Once {
+		pc, _, _, _ := runtime.Caller(depth + 1)
+
+		// name = runtime.FuncForPC(reflect.ValueOf(any).Pointer()).Name()
+		name = runtime.FuncForPC(pc).Name()
+
+		re := regexp.MustCompile(`^.*?\.\(\*[A-Za-z0-9_-]+\)\.([A-Za-z0-9_]+)`)
+		if re.MatchString(name) {
+			a := re.FindStringSubmatch(name)
+			if len(a) >= 1 {
+				name = a[1]
+				break
+			}
+		}
+
+		re = regexp.MustCompile(`^.*?\.([A-Za-z0-9_]+)`)
+		if re.MatchString(name) {
+			a := re.FindStringSubmatch(name)
+			if len(a) >= 1 {
+				name = a[1]
+				break
+			}
+		}
+	}
+	return name
+}
+
+func GetCaller(depth int, args ...any) string {
+	pc, _, _, _ := runtime.Caller(depth + 1)
+	return runtime.FuncForPC(pc).Name() + "()"
+}
+
+func MakeServiceCall() string {
+	var name string
+	for range Only.Once {
+		pc, _, _, _ := runtime.Caller(1)
+
+		// name = runtime.FuncForPC(reflect.ValueOf(any).Pointer()).Name()
+		name = runtime.FuncForPC(pc).Name()
+
+		re := regexp.MustCompile(`^.*?\.\(\*([A-Za-z0-9_-]+)\)(\.[A-Za-z0-9_]+)`)
+		if re.MatchString(name) {
+			a := re.FindStringSubmatch(name)
+			if len(a) >= 2 {
+				name = a[1] + a[2]
+				break
+			}
+		}
+
+		re = regexp.MustCompile(`^.*?\.([A-Za-z0-9_]+)`)
+		if re.MatchString(name) {
+			a := re.FindStringSubmatch(name)
+			if len(a) >= 1 {
+				name = "Plugin." + a[1]
+				break
+			}
+		}
+	}
+	return name
+}
+
+func ToJson(ref any) ([]byte, Return.Error) {
+	var err Return.Error
+	data, e := json.Marshal(ref)
+	if e != nil {
 		err.SetError(e)
-		if err.IsError() {
-			break
-		}
-
-		if fi.Mode().IsDir() {
-			err.SetError("file '%s' is a directory", filePath)
-			break
-		}
-
-		data, e = os.ReadFile(filePath)
-		err.SetError(e)
-		if err.IsError() {
-			break
-		}
 	}
-
 	return data, err
 }
 
-// WriteFile - read file
-func WriteFile(filePath string, data []byte) Return.Error {
+func FromJson(data []byte, ref any) Return.Error {
 	var err Return.Error
-
-	for range Only.Once {
-		dir := filepath.Dir(filePath)
-		fi, e := os.Stat(dir)
+	e := json.Unmarshal(data, &ref)
+	if e != nil {
 		err.SetError(e)
-		if err.IsError() {
-			break
-		}
-
-		if !fi.Mode().IsDir() {
-			err.SetError("path '%s' is not a directory", dir)
-			break
-		}
-
-		e = os.WriteFile(filePath, data, 0644)
-		err.SetError(e)
-		if err.IsError() {
-			break
-		}
 	}
-
 	return err
 }

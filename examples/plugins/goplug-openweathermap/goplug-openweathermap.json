@@ -1,0 +1,1 @@
+{"name":"openweathermap","version":"1.0.0","maintainers":["mick@mickmake.com","mick@boutade.net"],"description":"A GoPlug plugin - Access openweathermap.org","icon":"","icon_data":null,"types":{"Rpc":false,"Native":true},"repository":"https://github.com/MickMake/GoPlug","source":null,"callbacks":{"Initialise":".","Run":".","Notify":".","Execute":"."}}

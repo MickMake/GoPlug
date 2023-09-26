@@ -8,16 +8,15 @@ import (
 	"fmt"
 
 	"github.com/MickMake/GoPlug/Return"
-	"github.com/MickMake/GoPlug/pluggable"
 	"github.com/MickMake/GoUnify/Only"
 )
 
 //goland:noinspection GoUnusedGlobalVariable
-var GoPlugin pluggable.PluginIdentity
+var GoPlugin sobject.PluginIdentity
 
 func init() {
-	GoPlugin = pluggable.PluginIdentity{
-		Callbacks: pluggable.Callbacks{
+	GoPlugin = sobject.PluginIdentity{
+		Callbacks: sobject.Callbacks{
 			Initialise: CustomConfig.Initialise,
 			Run:        nil,
 			Notify:     nil,
@@ -34,7 +33,7 @@ func init() {
 type PluginStruct struct {
 	String    string
 	Int       int
-	Interface interface{}
+	Interface any
 }
 
 var CustomConfig = PluginStruct{
@@ -54,7 +53,7 @@ var CustomConfig = PluginStruct{
 }
 
 // Initialise - the plugin logic here
-func (m *PluginStruct) Initialise(ctx pluggable.Plugin, args ...interface{}) Return.Error {
+func (m *PluginStruct) Initialise(ctx sobject.Plugin, args ...any) Return.Error {
 	var err Return.Error
 
 	for range Only.Once {

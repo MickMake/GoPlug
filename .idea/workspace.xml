@@ -18,6 +18,9 @@
     </option>
   </component>
   <component name="GOROOT" url="file:///usr/local/go" />
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -40,82 +43,65 @@
     &quot;last_opened_file_path&quot;: &quot;/Volumes/home/mick&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;go.vgo&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/GoPlugLoader/Plugin" />
+      <recent name="$PROJECT_DIR$/examples/plugins/goplug-openweathermap" />
+      <recent name="$PROJECT_DIR$/utils" />
+      <recent name="$PROJECT_DIR$/utils/store" />
+      <recent name="$PROJECT_DIR$/GoPlugLoader/PluginCommon" />
+    </key>
+  </component>
   <component name="RunManager" selected="Go Build.master">
+    <configuration name="goplug-openweathermap" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="GoPlug" />
+      <working_directory value="$PROJECT_DIR$/examples/plugins/goplug-openweathermap" />
+      <go_parameters value="-mod=readonly -o goplug-simple" />
+      <kind value="DIRECTORY" />
+      <package value="github.com/MickMake/GoPlug" />
+      <directory value="$PROJECT_DIR$/examples/plugins/goplug-openweathermap" />
+      <filePath value="$PROJECT_DIR$" />
+      <output_directory value="$PROJECT_DIR$/examples/plugins/goplug-openweathermap" />
+      <method v="2">
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
+      </method>
+    </configuration>
+    <configuration name="goplug-simple" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="GoPlug" />
+      <working_directory value="$PROJECT_DIR$/examples/plugins/goplug-simple" />
+      <go_parameters value="-mod=readonly -o goplug-simple" />
+      <kind value="DIRECTORY" />
+      <package value="github.com/MickMake/GoPlug" />
+      <directory value="$PROJECT_DIR$/examples/plugins/goplug-simple" />
+      <filePath value="$PROJECT_DIR$" />
+      <output_directory value="$PROJECT_DIR$/examples/plugins/goplug-simple" />
+      <method v="2">
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
+      </method>
+    </configuration>
     <configuration name="master" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="GoPlug" />
       <working_directory value="$PROJECT_DIR$/examples/master" />
+      <parameters value="get 1" />
+      <envs>
+        <env name="GOCACHE" value="$PROJECT_DIR$/../../../../../../Media/GoCache" />
+      </envs>
       <kind value="DIRECTORY" />
       <package value="github.com/MickMake/GoPlug" />
       <directory value="$PROJECT_DIR$/examples/master" />
       <filePath value="$PROJECT_DIR$" />
       <output_directory value="$PROJECT_DIR$/examples/master" />
       <method v="2">
-        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
-      </method>
-    </configuration>
-    <configuration name="plugin1" type="GoApplicationRunConfiguration" factoryName="Go Application">
-      <module name="GoPlug" />
-      <working_directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
-      <go_parameters value="build -buildmode=plugin -o plugin1.so -gcflags 'all=-N -l' plugin1.go" />
-      <kind value="DIRECTORY" />
-      <package value="github.com/MickMake/GoPlug" />
-      <directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
-      <filePath value="$PROJECT_DIR$" />
-      <output_directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
-      <option name="run" value="false" />
-      <method v="2">
-        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
-      </method>
-    </configuration>
-    <configuration name="plugin1.cmd" type="GoApplicationRunConfiguration" factoryName="Go Application">
-      <module name="GoPlug" />
-      <working_directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
-      <kind value="DIRECTORY" />
-      <package value="github.com/MickMake/GoPlug" />
-      <directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
-      <filePath value="$PROJECT_DIR$" />
-      <output_directory value="$PROJECT_DIR$/examples/plugins/plugin1" />
-      <method v="2">
-        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
-      </method>
-    </configuration>
-    <configuration name="plugin2" type="GoApplicationRunConfiguration" factoryName="Go Application">
-      <module name="GoPlug" />
-      <working_directory value="$PROJECT_DIR$/examples/plugins/plugin2" />
-      <go_parameters value="build -buildmode=plugin -o plugin2.so -gcflags 'all=-N -l' plugin2.go" />
-      <kind value="DIRECTORY" />
-      <package value="github.com/MickMake/GoPlug" />
-      <directory value="$PROJECT_DIR$/examples/plugins/plugin2" />
-      <filePath value="$PROJECT_DIR$" />
-      <output_directory value="$PROJECT_DIR$/examples/plugins/plugin2" />
-      <option name="run" value="false" />
-      <method v="2">
-        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
-      </method>
-    </configuration>
-    <configuration name="plugin3" type="GoApplicationRunConfiguration" factoryName="Go Application">
-      <module name="GoPlug" />
-      <working_directory value="$PROJECT_DIR$/examples/plugins/" />
-      <go_parameters value="build -buildmode=plugin -o plugin3.so -gcflags 'all=-N -l' plugin3.go" />
-      <kind value="DIRECTORY" />
-      <package value="github.com/MickMake/GoPlug" />
-      <directory value="$PROJECT_DIR$/examples/plugins/" />
-      <filePath value="$PROJECT_DIR$" />
-      <output_directory value="$PROJECT_DIR$/examples/plugins/" />
-      <option name="run" value="false" />
-      <method v="2">
-        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_bash" />
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Make plugins" />
       </method>
     </configuration>
     <list>
       <item itemvalue="Go Build.master" />
-      <item itemvalue="Go Build.plugin1" />
-      <item itemvalue="Go Build.plugin1.cmd" />
-      <item itemvalue="Go Build.plugin2" />
-      <item itemvalue="Go Build.plugin3" />
+      <item itemvalue="Go Build.goplug-simple" />
+      <item itemvalue="Go Build.goplug-openweathermap" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -129,19 +115,611 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/shared/server.go</url>
+          <line>32</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/shared/server.go</url>
+          <line>39</line>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/shared/server.go</url>
+          <line>44</line>
+          <option name="timeStamp" value="30" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/plugins/greeter-foo/boilerplate.go</url>
+          <line>38</line>
+          <option name="timeStamp" value="85" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/plugins/greeter-foo/boilerplate.go</url>
+          <line>44</line>
+          <option name="timeStamp" value="86" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/plugins/greeter-aashitaa/main.go</url>
+          <line>44</line>
+          <option name="timeStamp" value="120" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file:///usr/local/go/src/net/rpc/server.go</url>
+          <line>612</line>
+          <option name="timeStamp" value="159" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file:///usr/local/go/src/net/rpc/server.go</url>
+          <line>618</line>
+          <option name="timeStamp" value="160" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file:///usr/local/go/src/net/rpc/server.go</url>
+          <line>586</line>
+          <option name="timeStamp" value="161" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <condition expression="call.Error != nil" language="go" />
+          <url>file:///usr/local/go/src/net/rpc/client.go</url>
+          <line>91</line>
+          <option name="timeStamp" value="185" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file:///usr/local/go/src/net/rpc/server.go</url>
+          <line>352</line>
+          <option name="timeStamp" value="200" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file:///usr/local/go/src/net/rpc/server.go</url>
+          <line>339</line>
+          <option name="timeStamp" value="209" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <condition expression="serviceMethod == &quot;Plugin.Put&quot;" language="go" />
+          <url>file:///usr/local/go/src/net/rpc/client.go</url>
+          <line>298</line>
+          <option name="timeStamp" value="215" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/utils.go</url>
+          <line>190</line>
+          <option name="timeStamp" value="237" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/utils.go</url>
+          <line>214</line>
+          <option name="timeStamp" value="239" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/utils.go</url>
+          <line>201</line>
+          <option name="timeStamp" value="240" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/utils.go</url>
+          <line>210</line>
+          <option name="timeStamp" value="242" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/FilePath.go</url>
+          <line>566</line>
+          <option name="timeStamp" value="282" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>360</line>
+          <option name="timeStamp" value="297" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/FilePath.go</url>
+          <line>584</line>
+          <option name="timeStamp" value="303" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/FilePath.go</url>
+          <line>604</line>
+          <option name="timeStamp" value="304" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/FilePath.go</url>
+          <line>34</line>
+          <option name="timeStamp" value="334" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/Builder.go</url>
+          <line>21</line>
+          <option name="timeStamp" value="426" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/Builder.go</url>
+          <line>127</line>
+          <option name="timeStamp" value="437" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/Builder.go</url>
+          <line>148</line>
+          <option name="timeStamp" value="438" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/PluginStore.go</url>
+          <line>217</line>
+          <option name="timeStamp" value="469" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>447</line>
+          <option name="timeStamp" value="516" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/vendor/github.com/hashicorp/go-plugin/grpc_client.go</url>
+          <line>109</line>
+          <option name="timeStamp" value="551" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/vendor/github.com/hashicorp/go-plugin/rpc_server.go</url>
+          <line>170</line>
+          <option name="timeStamp" value="552" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/vendor/github.com/hashicorp/go-plugin/rpc_client.go</url>
+          <line>147</line>
+          <option name="timeStamp" value="553" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_client.go</url>
+          <line>90</line>
+          <option name="timeStamp" value="578" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>332</line>
+          <option name="timeStamp" value="581" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcDefault.go</url>
+          <line>27</line>
+          <option name="timeStamp" value="596" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>334</line>
+          <option name="timeStamp" value="601" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_client.go</url>
+          <line>89</line>
+          <option name="timeStamp" value="602" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>331</line>
+          <option name="timeStamp" value="603" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativePlugin.go</url>
+          <line>319</line>
+          <option name="timeStamp" value="604" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>439</line>
+          <option name="timeStamp" value="605" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>430</line>
+          <option name="timeStamp" value="607" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>471</line>
+          <option name="timeStamp" value="608" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>463</line>
+          <option name="timeStamp" value="609" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>455</line>
+          <option name="timeStamp" value="610" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>479</line>
+          <option name="timeStamp" value="611" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>487</line>
+          <option name="timeStamp" value="612" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>495</line>
+          <option name="timeStamp" value="613" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>503</line>
+          <option name="timeStamp" value="614" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>511</line>
+          <option name="timeStamp" value="615" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>519</line>
+          <option name="timeStamp" value="616" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>527</line>
+          <option name="timeStamp" value="617" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>535</line>
+          <option name="timeStamp" value="618" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>543</line>
+          <option name="timeStamp" value="619" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>551</line>
+          <option name="timeStamp" value="620" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>559</line>
+          <option name="timeStamp" value="621" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>567</line>
+          <option name="timeStamp" value="622" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>575</line>
+          <option name="timeStamp" value="623" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>583</line>
+          <option name="timeStamp" value="624" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>591</line>
+          <option name="timeStamp" value="625" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>599</line>
+          <option name="timeStamp" value="626" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>607</line>
+          <option name="timeStamp" value="627" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>615</line>
+          <option name="timeStamp" value="628" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>623</line>
+          <option name="timeStamp" value="629" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>631</line>
+          <option name="timeStamp" value="630" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>88</line>
+          <option name="timeStamp" value="636" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/old_rpc_plugin.go</url>
+          <line>323</line>
+          <option name="timeStamp" value="637" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/examples/master/main.go</url>
-          <line>108</line>
-          <option name="timeStamp" value="3" />
+          <line>521</line>
+          <option name="timeStamp" value="698" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/Return/struct.go</url>
+          <line>61</line>
+          <option name="timeStamp" value="754" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/NewRpcPlugin/plugin.go</url>
+          <line>34</line>
+          <option name="timeStamp" value="775" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>524</line>
+          <option name="timeStamp" value="816" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>280</line>
+          <option name="timeStamp" value="837" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>173</line>
+          <option name="timeStamp" value="851" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>322</line>
+          <option name="timeStamp" value="853" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>146</line>
+          <option name="timeStamp" value="858" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>286</line>
+          <option name="timeStamp" value="861" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>266</line>
+          <option name="timeStamp" value="862" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>260</line>
+          <option name="timeStamp" value="863" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>273</line>
+          <option name="timeStamp" value="864" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/PluginStore.go</url>
+          <line>563</line>
+          <option name="timeStamp" value="888" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/Loader.go</url>
+          <line>211</line>
+          <option name="timeStamp" value="889" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativeLoader.go</url>
+          <line>192</line>
+          <option name="timeStamp" value="1039" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>368</line>
+          <option name="timeStamp" value="1077" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/Plugin/HookStore.go</url>
+          <line>481</line>
+          <option name="timeStamp" value="1079" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/utils.go</url>
+          <line>32</line>
+          <option name="timeStamp" value="1082" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/utils.go</url>
+          <line>63</line>
+          <option name="timeStamp" value="1083" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/utils.go</url>
+          <line>93</line>
+          <option name="timeStamp" value="1084" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/Plugin/Plugin.go</url>
+          <line>135</line>
+          <option name="timeStamp" value="1101" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>321</line>
+          <option name="timeStamp" value="1102" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>358</line>
+          <option name="timeStamp" value="1110" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>365</line>
+          <option name="timeStamp" value="1113" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>327</line>
+          <option name="timeStamp" value="1114" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>276</line>
+          <option name="timeStamp" value="1115" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>235</line>
+          <option name="timeStamp" value="1117" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/examples/master/main.go</url>
           <line>107</line>
-          <option name="timeStamp" value="4" />
+          <option name="timeStamp" value="1119" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/manager.go</url>
-          <line>126</line>
-          <option name="timeStamp" value="12" />
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>315</line>
+          <option name="timeStamp" value="1122" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativeLoader.go</url>
+          <line>228</line>
+          <option name="timeStamp" value="1125" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativeLoader.go</url>
+          <line>221</line>
+          <option name="timeStamp" value="1128" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativeLoader.go</url>
+          <line>371</line>
+          <option name="timeStamp" value="1148" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativeLoader.go</url>
+          <line>362</line>
+          <option name="timeStamp" value="1149" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativeLoader.go</url>
+          <line>246</line>
+          <option name="timeStamp" value="1150" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativeLoader.go</url>
+          <line>315</line>
+          <option name="timeStamp" value="1151" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativeLoader.go</url>
+          <line>309</line>
+          <option name="timeStamp" value="1152" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/NativeLoader.go</url>
+          <line>379</line>
+          <option name="timeStamp" value="1153" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>145</line>
+          <option name="timeStamp" value="1154" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>125</line>
+          <option name="timeStamp" value="1155" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>119</line>
+          <option name="timeStamp" value="1156" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>113</line>
+          <option name="timeStamp" value="1158" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/RpcLoader.go</url>
+          <line>362</line>
+          <option name="timeStamp" value="1163" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/Plugin/Plugin.go</url>
+          <line>125</line>
+          <option name="timeStamp" value="1168" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/Plugin/Common.go</url>
+          <line>243</line>
+          <option name="timeStamp" value="1169" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/Plugin/Plugin.go</url>
+          <line>121</line>
+          <option name="timeStamp" value="1170" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/GoPlugLoader/Plugin/Common.go</url>
+          <line>239</line>
+          <option name="timeStamp" value="1171" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>207</line>
+          <option name="timeStamp" value="1172" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>109</line>
+          <option name="timeStamp" value="1174" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>115</line>
+          <option name="timeStamp" value="1175" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>121</line>
+          <option name="timeStamp" value="1176" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/examples/master/main.go</url>
+          <line>127</line>
+          <option name="timeStamp" value="1177" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/PluginManager.go</url>
+          <line>224</line>
+          <option name="timeStamp" value="1180" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/PluginManager.go</url>
+          <line>214</line>
+          <option name="timeStamp" value="1183" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/Logger.go</url>
+          <line>146</line>
+          <option name="timeStamp" value="1188" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/Logger.go</url>
+          <line>29</line>
+          <option name="timeStamp" value="1189" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/Logger.go</url>
+          <line>50</line>
+          <option name="timeStamp" value="1190" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/utils/Logger.go</url>
+          <line>25</line>
+          <option name="timeStamp" value="1191" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

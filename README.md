@@ -1,11 +1,19 @@
 # GoPlug - A working PoC for GoLang's plugin system.
 
-This started out as a PoC for an itch I had. I needed a decent plugin system to support arbitrary modules that could be loaded/unloaded at run-time.
+This started out as a PoC for an itch I had.
+I needed a decent plugin system to support arbitrary modules that could be loaded/unloaded at run-time.
 
-The goal was to determine how simple I could get a plugin system to be. Turns out GoLang's plugin system has flaws that make it unusable for ad-hoc loading/unloading of modules.
-Specifically; when modules are built with one version against a different version of the "master".
+Turns out GoLang's plugin system has flaws that make it unusable for ad-hoc loading/unloading of modules.
+Specifically:
+- When modules are built with one version against a different version of the "master".
+- Windows is unsupported, (all my GoLang apps are cross-architecture).
 
-Anyway, this is a complete working example of a simple Go based plugin system.
+This package now supports two variants of a "plugin" system:
+- Native GoLang.
+- Hashicorp's gRPC based plugin system.
 
-I might extend this to support HasiCorp's gRPC based "plugins" which is, of course, a lot more mature.
+It's goal is still to be as simple as possible for quick onboarding, but extensible enough to support complex setups.
 
+You can write a plugin system using the same config, but supporting either or both - at the same time!
+
+Have a look at the examples to see what can be done.

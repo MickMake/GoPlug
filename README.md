@@ -1,4 +1,4 @@
-# GoPlug - A working PoC for GoLang's plugin system.
+# GoPlug - An easy, flexible pluggable plugin package for GoLang.
 
 This started out as a PoC for an itch I had.
 I needed a decent plugin system to support arbitrary modules that could be loaded/unloaded at run-time.

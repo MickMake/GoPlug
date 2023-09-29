@@ -721,6 +721,16 @@
           <line>366</line>
           <option name="timeStamp" value="1397" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/main/main.go</url>
+          <line>10</line>
+          <option name="timeStamp" value="1398" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/main/main.go</url>
+          <line>11</line>
+          <option name="timeStamp" value="1399" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>

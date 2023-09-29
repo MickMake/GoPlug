@@ -14,8 +14,10 @@ import (
 
 // ---------------------------------------------------------------------------------------------------- //
 
+//goland:noinspection ALL
 const (
 	PackageName             = "GoPlugin"
+	GoPluginItem            = "GoPluginItem"
 	GoPluginIdentity        = "GoPluginIdentity"
 	GoPluginNativeInterface = "GoPluginNativeInterface"
 	GoPluginRpcInterface    = "GoPluginRpcInterface"
@@ -24,6 +26,7 @@ const (
 	HandshakeProtocol       = 1
 )
 
+//goland:noinspection GoUnusedGlobalVariable
 var (
 	AllPluginTypes = Types{
 		Rpc:    true,
@@ -79,6 +82,7 @@ type Identity struct {
 	Callbacks Callbacks `json:"callbacks"`
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func NewIdentity() *Identity {
 	return &Identity{
 		Name:         "",
@@ -165,7 +169,7 @@ func (i *Identity) GetKey(key string) string {
 	return value
 }
 
-func (i *Identity) Callback(callback string, ctx Interface, args ...any) Return.Error {
+func (i *Identity) Callback(callback string, ctx PluginDataInterface, args ...any) Return.Error {
 	callback = strings.ToLower(callback)
 	switch callback {
 	case CallbackInitialise:
@@ -221,6 +225,30 @@ func NewTypes() Types {
 	}
 }
 
+func (p *Types) IsValid() Return.Error {
+	var err Return.Error
+	switch *p {
+	case Types{Native: true, Rpc: true}:
+		err.SetError("Only one PluginType can be configured at a time.")
+
+	case Types{Native: true, Rpc: false}:
+
+	case Types{Native: false, Rpc: true}:
+
+	default:
+		err.SetError("No PluginType specified.")
+	}
+	return err
+}
+
+func (p *Types) IsNative() bool {
+	return p.Native
+}
+
+func (p *Types) IsRpc() bool {
+	return p.Rpc
+}
+
 func (p Types) String() string {
 	return fmt.Sprintf("Native: %v, Rpc: %v", p.Native, p.Rpc)
 }
@@ -255,7 +283,7 @@ type HTTPServices struct {
 //
 // Callback - Generic callback function type
 // ---------------------------------------------------------------------------------------------------- //
-type Callback func(ctx Interface, args ...any) Return.Error
+type Callback func(ctx PluginDataInterface, args ...any) Return.Error
 
 func (c Callback) MarshalJSON() ([]byte, error) {
 	str := `"` + runtime.FuncForPC(reflect.ValueOf(c).Pointer()).Name() + `"`

@@ -124,25 +124,25 @@ func (jfv *JSONFileValidator) Validate(params ...any) (any, Return.Error) {
 			break
 		}
 
-		data, err2 := os.ReadFile(pluginJSONFile)
-		err.SetError(err2)
-		if err.IsError() {
+		data, e := os.ReadFile(pluginJSONFile)
+		if e != nil {
+			err.SetError(e)
 			break
 		}
 
 		// Load plugin.json
 		identity := &Identity{}
-		err2 = json.Unmarshal(data, identity)
-		err.SetError(err2)
-		if err.IsError() {
+		e = json.Unmarshal(data, identity)
+		if e != nil {
+			err.SetError(e)
 			break
 		}
 
 		// Plugin dir name should be equal with the name of the plugin
 		var fi os.FileInfo
-		fi, err2 = os.Stat(pluginDirPath)
-		err.SetError(err2)
-		if err.IsError() {
+		fi, e = os.Stat(pluginDirPath)
+		if e != nil {
+			err.SetError(e)
 			// Actually, should not come here
 			break
 		}

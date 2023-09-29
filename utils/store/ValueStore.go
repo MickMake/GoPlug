@@ -35,6 +35,7 @@ type ValueStore interface {
 }
 
 // NewValueStore - Create a ValueStore interface structure instance.
+//goland:noinspection GoUnusedExportedFunction
 func NewValueStore() ValueStore {
 	return &ValueStruct{
 		Values: make(map[string]any),
@@ -45,7 +46,7 @@ func NewValueStore() ValueStore {
 // ValueStruct
 // ---------------------------------------------------------------------------------------------------- //
 type ValueStruct struct {
-	Values map[string]any
+	Values map[string]any `json:"values"`
 }
 
 // NewValueStruct - Create a ValueStore interface structure instance.

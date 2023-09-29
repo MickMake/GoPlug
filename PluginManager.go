@@ -6,17 +6,13 @@ import (
 	"strings"
 
 	"github.com/MickMake/GoUnify/Only"
-	plugin "github.com/hashicorp/go-plugin"
+	goplugin "github.com/hashicorp/go-plugin"
 
 	"github.com/MickMake/GoPlug/GoPlugLoader"
 	"github.com/MickMake/GoPlug/GoPlugLoader/Plugin"
 	"github.com/MickMake/GoPlug/utils"
 	"github.com/MickMake/GoPlug/utils/Return"
 )
-
-// DefaultManager is the default plugin manager
-//goland:noinspection GoUnusedGlobalVariable
-// var DefaultManager, _ = NewPluginManager(".", &PluginManagerIdentity{})
 
 //
 // Manager - Used to load, organize and maintain the plugins.
@@ -31,12 +27,13 @@ type Manager interface {
 	GetDir() string
 
 	SetFileGlob(glob string) Return.Error
+	SetPrefix(prefix string) Return.Error
 
 	// SetIdentity - Set the base dir where to load plugins.
 	// If the dir does not exist, or it's not a dir an error will be returned.
 	SetIdentity(config Plugin.Identity) Return.Error
 
-	SetImplementor(impl plugin.Plugin) Return.Error
+	SetImplementor(impl goplugin.Plugin) Return.Error
 
 	// ListPlugins - Print out all the plugins found.
 	ListPlugins()
@@ -73,17 +70,12 @@ type Manager interface {
 
 	Dispose()
 
-	GetInterface(id string) (any, Return.Error)
-
-	GetNativeInterface(id string) (GoPlugLoader.NativePluginInterface, Return.Error)
-
-	GetRpcInterface(id string) (GoPlugLoader.RpcPluginInterface, Return.Error)
+	GetInterface(id string) (GoPlugLoader.PluginItemInterface, Return.Error)
 
 	IsError() bool
 	GetError() Return.Error
 	PrintError()
 
-	pluginMap(id string) map[string]plugin.Plugin
 	NameToPluginPath(id string) (*utils.FilePath, Return.Error)
 
 	SetLogfile(s string) Return.Error
@@ -93,18 +85,19 @@ type Manager interface {
 // PluginManager
 // ---------------------------------------------------------------------------------------------------- //
 type PluginManager struct {
-	Config      *Plugin.Identity
-	PluginDir   utils.FilePath
-	CmdFile     utils.FilePath
-	FileGlob    string                     // glob match for plugin filenames
-	Plugins     GoPlugLoader.PluginInfoMap // Info for found plugins
-	Initialized bool                       // has been Initialized
-	PluginImpl  plugin.Plugin              // Plugin implementation dummy interface
-	Loaders     GoPlugLoader.LoaderInterface
-	Validator   Plugin.Validator
-	Logger      *utils.Logger
-	Logfile     *utils.FilePath
-	Error       Return.Error
+	Config      *Plugin.Identity             `json:"config"`      //
+	PluginDir   utils.FilePath               `json:"plugin_dir"`  //
+	CmdFile     utils.FilePath               `json:"cmd_file"`    //
+	FileGlob    string                       `json:"file_glob"`   // glob match for plugin filenames
+	Prefix      string                       `json:"prefix"`      //
+	Plugins     GoPlugLoader.PluginInfoMap   `json:"-"`           // Info for found plugins
+	Initialized bool                         `json:"initialized"` // has been Initialized
+	Loaders     GoPlugLoader.LoaderInterface `json:"-"`           //
+	Validator   Plugin.Validator             `json:"-"`           //
+	Logger      *utils.Logger                `json:"-"`           //
+	Logfile     *utils.FilePath              `json:"logfile"`     //
+	Error       Return.Error                 `json:"-"`           //
+	pluginImpl  goplugin.Plugin              // Plugin implementation dummy interface
 }
 
 // NewPluginManager is constructor of PluginManager
@@ -145,14 +138,14 @@ func NewPluginManager(config *Plugin.Identity) (Manager, Return.Error) {
 			PluginDir:   base,
 			CmdFile:     file,
 			FileGlob:    "goplug-*",
+			Prefix:      "goplug-",
 			Plugins:     make(GoPlugLoader.PluginInfoMap),
 			Initialized: true,
-			// PluginImpl:  &GoPlugLoader.RpcPlugin{},
-			PluginImpl: impl,
-			Loaders:    GoPlugLoader.NewLoaders(&base, &file, config, &l),
-			Validator:  Plugin.NewBaseValidatorChain(&Plugin.IdentityValidator{}),
-			Logger:     &l,
-			Error:      err,
+			pluginImpl:  impl,
+			Loaders:     GoPlugLoader.NewLoaders(&base, &file, config, &l),
+			Validator:   Plugin.NewBaseValidatorChain(&Plugin.IdentityValidator{}),
+			Logger:      &l,
+			Error:       err,
 			// validator: Plugin.NewBaseValidatorChain(&Plugin.JSONFileValidator{}, &Plugin.IdentityValidator{}, &Plugin.LocalSourceValidator{}),
 		}
 
@@ -182,6 +175,7 @@ func (m *PluginManager) SetPluginTypes(pluginTypes Plugin.Types) Return.Error {
 }
 
 func (m *PluginManager) SetPrefix(prefix string) Return.Error {
+	m.Prefix = prefix
 	return m.Loaders.SetPrefix(prefix)
 }
 
@@ -235,57 +229,30 @@ func (m *PluginManager) SetLogfile(dir string) Return.Error {
 
 func (m *PluginManager) SetFileGlob(glob string) Return.Error {
 	m.FileGlob = glob
+
+	prefix := strings.TrimSuffix(glob, "*")
+	m.SetPrefix(prefix)
 	return Return.Ok
 }
 
-func (m *PluginManager) SetIdentity(config Plugin.Identity) Return.Error {
+func (m *PluginManager) SetIdentity(identity Plugin.Identity) Return.Error {
 	for range Only.Once {
-		m.Error = config.IsValid()
+		m.Error = identity.IsValid()
 		if m.Error.IsError() {
 			break
 		}
 
-		m.Config = &config
-		// bm.Plugin = NewRpcPlugin(nil)
-		// bm.Error = bm.rpc.SetDir(bm.GetBaseDir())
-		// if bm.Error.IsError() {
-		// 	break
-		// }
-		//
-		// m.Config = &config
-		// bm.Plugin, bm.Error = NewRpcPlugin(&config, nil, bm.logger)
-		// bm.Plugin.SetConfigDir(bm.GetBaseDir())
+		m.Config = &identity
 	}
 
 	return m.Error
 }
 
-func (m *PluginManager) SetImplementor(impl plugin.Plugin) Return.Error {
-	m.PluginImpl = impl
+func (m *PluginManager) SetImplementor(impl goplugin.Plugin) Return.Error {
+	m.pluginImpl = impl
 	return Return.Ok
-}
-
-// pluginMap should be used by clients for the map of plugins.
-func (m *PluginManager) pluginMap(id string) map[string]plugin.Plugin {
-	pmap := map[string]plugin.Plugin{}
-
-	// for _, pinfo := range m.Plugins {
-	// 	pmap[pinfo.ID] = m.pluginImpl
-	// }
-
-	pmap[id] = m.PluginImpl
-
-	return pmap
 }
 
 func (m *PluginManager) NameToPluginPath(id string) (*utils.FilePath, Return.Error) {
 	return m.Loaders.NameToPluginPath(id)
-}
-
-// ---------------------------------------------------------------------------------------------------- //
-
-func FileToId(file string, glob string) string {
-	globAsterix := strings.LastIndex(glob, "*")
-	trim := glob[0:globAsterix]
-	return strings.TrimPrefix(file, trim)
 }

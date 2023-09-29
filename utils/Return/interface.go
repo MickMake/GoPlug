@@ -22,10 +22,9 @@ type Interface interface {
 	ReturnIsWarning() bool
 	ReturnIsNotWarning() bool
 	ReturnPrint()
-
-	// Error
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func NewInterface() Interface {
 	return new(Error)
 }

@@ -13,7 +13,7 @@ import (
 )
 
 type Logger struct {
-	name string
+	Name string
 	out  io.Writer
 	file *os.File
 	log  hclog.Logger
@@ -24,7 +24,7 @@ func NewLogger(name string, filename string) (Logger, Return.Error) {
 	var err Return.Error
 
 	for range Only.Once {
-		ret.name = name
+		ret.Name = name
 
 		ret.SetLogFile(filename)
 		ret.log = hclog.New(&hclog.LoggerOptions{
@@ -92,19 +92,19 @@ func (l *Logger) Close() {
 
 func (l *Logger) Info(msg string, args ...any) {
 	if l.log != nil {
-		l.log.Info(l.name + " => " + fmt.Sprintf(msg, args...))
+		l.log.Info(l.Name + " => " + fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *Logger) Debug(msg string, args ...any) {
 	if l.log != nil {
-		l.log.Debug(l.name + " => " + fmt.Sprintf(msg, args...))
+		l.log.Debug(l.Name + " => " + fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *Logger) SetName(name string) {
 	if name != "" {
-		l.name = name
+		l.Name = name
 	}
 }
 

@@ -12,14 +12,8 @@ import (
 	"github.com/MickMake/GoPlug/utils/Return"
 )
 
-// GoPluginIdentity - Set the GoPlugin identity.
+// GoPluginIdentity - Set the GoPlugin identity. This is required for a minimal setup.
 var GoPluginIdentity = Plugin.Identity{
-	Callbacks: Plugin.Callbacks{
-		Initialise: nil,
-		Run:        nil,
-		Notify:     nil,
-		Execute:    nil,
-	},
 	Name:        "helloworld",
 	Version:     "2.0.0",
 	Description: "A GoPlug plugin - Hello World",
@@ -27,11 +21,8 @@ var GoPluginIdentity = Plugin.Identity{
 	Maintainers: []string{"mick@mickmake.com", "mick@boutade.net"},
 }
 
-// GoPluginRpcInterface - RPC based plugin.
-var GoPluginRpcInterface GoPlugLoader.RpcPluginInterface
-
-// GoPluginNativeInterface - Native based plugin.
-var GoPluginNativeInterface GoPlugLoader.NativePluginInterface
+// MyNativePlugin - Define the plugin as a global. Important for native plugins, not required for RPC.
+var MyNativePlugin GoPlugLoader.PluginItem
 
 // ---------------------------------------------------------------------------------------------------- //
 
@@ -40,28 +31,27 @@ func init() {
 	var err Return.Error
 
 	for range Only.Once {
-		GoPluginNativeInterface = GoPlugLoader.NewNativePluginInterface()
-		err = GoPluginNativeInterface.NewNativePlugin()
+		MyNativePlugin, err = GoPlugLoader.NewPluginItem(Plugin.NativePluginType, &GoPluginIdentity)
 		if err.IsError() {
 			break
 		}
 
-		err = GoPluginNativeInterface.SetIdentity(&GoPluginIdentity)
+		err = MyNativePlugin.SetIdentity(&GoPluginIdentity)
 		if err.IsError() {
 			break
 		}
 
-		err = GoPluginNativeInterface.SetHandshakeConfig(Plugin.HandshakeConfig)
+		err = MyNativePlugin.SetHandshakeConfig(Plugin.HandshakeConfig)
 		if err.IsError() {
 			break
 		}
 
-		err = GoPluginNativeInterface.SetHook("", HelloWorld)
+		err = MyNativePlugin.SetHook("", HelloWorld)
 		if err.IsError() {
 			break
 		}
 
-		err = GoPluginNativeInterface.Validate()
+		err = MyNativePlugin.Validate()
 		if err.IsError() {
 			break
 		}
@@ -72,36 +62,36 @@ func init() {
 
 // main - For an RPC plugin, main() will be called. So we can run the RPC server here.
 func main() {
+	var MyRpcPlugin GoPlugLoader.PluginItem
 	var err Return.Error
 
 	for range Only.Once {
-		rpc := GoPlugLoader.NewRpcPluginInterface()
-		err = rpc.NewRpcPlugin()
+		MyRpcPlugin, err = GoPlugLoader.NewPluginItem(Plugin.RpcPluginType, &GoPluginIdentity)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetIdentity(&GoPluginIdentity)
+		err = MyRpcPlugin.SetIdentity(&GoPluginIdentity)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHandshakeConfig(Plugin.HandshakeConfig)
+		err = MyRpcPlugin.SetHandshakeConfig(Plugin.HandshakeConfig)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHook("", HelloWorld)
+		err = MyRpcPlugin.SetHook("", HelloWorld)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.Validate()
+		err = MyRpcPlugin.Validate()
 		if err.IsError() {
 			break
 		}
 
-		err = GoPluginRpcInterface.Serve()
+		err = MyRpcPlugin.Serve()
 	}
 
 	err.Print()
@@ -112,5 +102,5 @@ func main() {
 func HelloWorld(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
 	funcName := utils.GetCaller(0)
 	log.Printf("%s() says hi!\n", funcName)
-	return Plugin.HookResponseNil, Return.Ok
+	return Plugin.HookResponseNil()
 }

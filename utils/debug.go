@@ -5,5 +5,5 @@ import (
 )
 
 func DEBUG() {
-	log.Println(GetCaller(1))
+	log.Println(GetCallerDebug(1))
 }

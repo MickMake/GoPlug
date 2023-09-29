@@ -12,9 +12,8 @@ import (
 //
 // DynamicDataInterface
 // ---------------------------------------------------------------------------------------------------- //
-// 6. Plugin interface/data structure
 type DynamicDataInterface interface {
-	NewDynamicData(plug Plugin)
+	NewDynamicData(plug PluginData)
 	RefIdentity() *Identity
 	SetIdentity(identity *Identity) Return.Error
 	GetIdentity() Identity
@@ -25,7 +24,7 @@ type DynamicDataInterface interface {
 	SetPluginType(types Types) Return.Error
 
 	RefCallbacks() *Callbacks
-	Callback(callback string, ctx Interface, args ...any) Return.Error
+	Callback(callback string, ctx PluginDataInterface, args ...any) Return.Error
 
 	RefHooks() *HookStruct
 	SetHookStore(hooks HookStore) Return.Error
@@ -54,19 +53,24 @@ type DynamicDataInterface interface {
 	HookStore
 }
 
+//goland:noinspection GoUnusedExportedFunction
+func CreateDynamicData(plug PluginData) DynamicDataInterface {
+	return NewDynamicData(plug)
+}
+
 //
 // DynamicData
 // ---------------------------------------------------------------------------------------------------- //
 type DynamicData struct {
-	Identity        Identity
-	Hooks           HookStruct
-	Values          store.ValueStruct
-	Interface       any
-	HandshakeConfig goplugin.HandshakeConfig
-	Error           Return.Error `json:"-"`
+	Identity        Identity                 `json:"identity"`
+	Hooks           HookStruct               `json:"hooks"`
+	Values          store.ValueStruct        `json:"values"`
+	Interface       any                      `json:"-"`
+	HandshakeConfig goplugin.HandshakeConfig `json:"handshakeConfig"`
+	Error           Return.Error             `json:"-"`
 }
 
-func NewDynamicData(plug Plugin) DynamicData {
+func NewDynamicData(plug PluginData) *DynamicData {
 	ret := DynamicData{
 		Hooks:           NewHookStruct(),
 		Values:          store.NewValueStruct(),
@@ -76,11 +80,11 @@ func NewDynamicData(plug Plugin) DynamicData {
 		Error:           Return.New(),
 	}
 	ret.SetHookPlugin(&plug)
-	return ret
+	return &ret
 }
 
-func (d *DynamicData) NewDynamicData(plug Plugin) {
-	*d = NewDynamicData(plug)
+func (d *DynamicData) NewDynamicData(plug PluginData) {
+	*d = *NewDynamicData(plug)
 }
 
 func (d *DynamicData) RefIdentity() *Identity {
@@ -141,34 +145,26 @@ func (d *DynamicData) RefCallbacks() *Callbacks {
 	return &d.Identity.Callbacks
 }
 
-func (d *DynamicData) Callback(callback string, ctx Interface, args ...any) Return.Error {
+func (d *DynamicData) Callback(callback string, ctx PluginDataInterface, args ...any) Return.Error {
 	return d.Identity.Callback(callback, ctx, args...)
 }
 
 // ---------------------------------------------------------------------------------------------------- //
 
-func (d *DynamicData) SetHookPlugin(plugin Interface) {
-	d.Hooks.SetHookPlugin(plugin)
-}
-
 func (d *DynamicData) RefHooks() *HookStruct {
 	return &d.Hooks
 }
-
 func (d *DynamicData) SetHookStore(hooks HookStore) Return.Error {
 	d.Error = Return.Ok
 	d.Hooks = *hooks.GetHookReference()
 	return d.Error
 }
-
 func (d *DynamicData) GetHook(name string) *Hook {
 	return d.Hooks.GetHook(name)
 }
-
 func (d *DynamicData) SetHook(name string, function HookFunction, args ...any) Return.Error {
 	return d.Hooks.SetHook(name, function, args...)
 }
-
 func (d *DynamicData) CallHook(name string, args ...any) (HookResponse, Return.Error) {
 	return d.Hooks.CallHook(name, args...)
 }
@@ -219,4 +215,51 @@ func (d DynamicData) String() string {
 	ret += d.Hooks.String()
 	ret += d.Values.String()
 	return ret
+}
+
+//
+// ---------------------------------------------------------------------------------------------------- //
+// Mirror methods of Plugin.HookStore interface structure
+
+func (d *DynamicData) NewHookStore() Return.Error {
+	return d.Hooks.NewHookStore()
+}
+func (d *DynamicData) SetHookPlugin(plugin PluginDataInterface) {
+	d.Hooks.SetHookPlugin(plugin)
+}
+func (d *DynamicData) GetHookReference() *HookStruct {
+	return d.Hooks.GetHookReference()
+}
+func (d *DynamicData) GetHookIdentity() string {
+	return d.Hooks.GetHookIdentity()
+}
+func (d *DynamicData) SetHookIdentity(identity string) Return.Error {
+	return d.Hooks.SetHookIdentity(identity)
+}
+func (d *DynamicData) HookExists(hook string) bool {
+	return d.Hooks.HookExists(hook)
+}
+func (d *DynamicData) HookNotExists(hook string) bool {
+	return d.Hooks.HookNotExists(hook)
+}
+func (d *DynamicData) GetHookName(name string) (string, Return.Error) {
+	return d.Hooks.GetHookName(name)
+}
+func (d *DynamicData) GetHookFunction(name string) (HookFunction, Return.Error) {
+	return d.Hooks.GetHookFunction(name)
+}
+func (d *DynamicData) GetHookArgs(name string) (HookArgs, Return.Error) {
+	return d.Hooks.GetHookArgs(name)
+}
+func (d *DynamicData) ValidateHook(args ...any) Return.Error {
+	return d.Hooks.ValidateHook(args...)
+}
+func (d *DynamicData) CountHooks() int {
+	return d.Hooks.CountHooks()
+}
+func (d *DynamicData) ListHooks() HookMap {
+	return d.Hooks.ListHooks()
+}
+func (d *DynamicData) PrintHooks() {
+	d.Hooks.PrintHooks()
 }

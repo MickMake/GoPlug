@@ -23,6 +23,7 @@ type CommonInterface interface {
 	// Init - Initialise this plugin.
 	InitCommon() Return.Error
 	SetRawInterface(ref any)
+	GetRawInterface() any
 	// IsCommonValid - Validate Common structure and set p.configured if true
 	IsCommonValid() Return.Error
 	// IsCommonConfigured - Quick check to determine if the plugin has been configured properly.
@@ -90,9 +91,9 @@ type Common struct {
 	StructName   string         `json:"struct_name,omitempty"`
 	Directory    utils.FilePath `json:"directory"`
 	Filename     utils.FilePath `json:"filename"`
-	Logger       *utils.Logger  `json:"logger,omitempty"`
+	Logger       *utils.Logger  `json:"-"`
 	Configured   bool           `json:"configured,omitempty"`
-	RawInterface any            `json:"interface,omitempty"`
+	rawInterface any
 	IsPlugin     bool           `json:"is_plugin,omitempty"`
 	OsArgs       []string       `json:"os_args"`
 	OsExecPath   utils.FilePath `json:"os_execpath"`
@@ -101,11 +102,6 @@ type Common struct {
 
 // NewPluginCommon - Create a store.ValueStore interface structure instance.
 func NewPluginCommon(common *Common) Common {
-	// Setup a temporary logger to STDERR until configured.
-	// l, err := utils.NewLogger(PackageName, "")
-	// if err.IsError() {
-	// 	panic(err)
-	// }
 	var err Return.Error
 
 	osargs := utils.GetArgs()
@@ -117,9 +113,9 @@ func NewPluginCommon(common *Common) Common {
 	if common != nil {
 		common.OsArgs = osargs
 		common.OsExecPath = execpath
-		if common.Logger == nil {
-			// common.Logger = &l
-		}
+		// if common.Logger == nil {
+		// 	// common.Logger = &l
+		// }
 		return *common
 	}
 
@@ -128,16 +124,16 @@ func NewPluginCommon(common *Common) Common {
 			Rpc:    true,
 			Native: true,
 		},
-		StructName: GoPluginIdentity,
-		Directory:  utils.FilePath{},
-		Filename:   utils.FilePath{},
-		// Logger:     &l,
-		Logger:     nil,
-		Configured: false,
-		IsPlugin:   utils.IsPlugin(),
-		OsArgs:     osargs,
-		OsExecPath: execpath,
-		Error:      err,
+		StructName:   GoPluginIdentity,
+		Directory:    utils.FilePath{},
+		Filename:     utils.FilePath{},
+		Logger:       nil,
+		Configured:   false,
+		rawInterface: nil,
+		IsPlugin:     utils.IsPlugin(),
+		OsArgs:       osargs,
+		OsExecPath:   execpath,
+		Error:        err,
 	}
 }
 
@@ -151,12 +147,17 @@ func (p *Common) InitCommon() Return.Error {
 	return Return.Ok
 }
 
-// SetRawInterface - Quick check to determine if the plugin has been configured properly.
+// SetRawInterface - .
 func (p *Common) SetRawInterface(ref any) {
 	if p == nil {
 		return
 	}
-	p.RawInterface = ref
+	p.rawInterface = ref
+}
+
+// GetRawInterface - .
+func (p *Common) GetRawInterface() any {
+	return p.rawInterface
 }
 
 // IsCommonValid - Validate Common structure and set p.configured if true

@@ -14,19 +14,6 @@ const (
 	NativeLoaderName = "native"
 )
 
-// NewLoaders - Create a new instance of this structure.
-func NewLoaders(dir *utils.FilePath, file *utils.FilePath, cfg *Plugin.Identity, logger *utils.Logger) LoaderInterface {
-	var err Return.Error
-	err.SetPrefix("Loader: ")
-
-	return &Loader{
-		Native:      NewNativeLoader(dir, cfg, logger),
-		Rpc:         NewRpcLoader(dir, file, cfg, logger),
-		PluginTypes: Plugin.AllPluginTypes,
-		Error:       err,
-	}
-}
-
 //
 // Loader - main implementation of LoaderInterface struct, which pulls in a child LoaderInterface
 // ---------------------------------------------------------------------------------------------------- //
@@ -90,18 +77,8 @@ func (l *Loader) IsLoaderType(loaderType string) bool {
 }
 
 func (l *Loader) SetPrefix(prefix string) Return.Error {
-	for range Only.Once {
-		l.Error = l.Native.SetDir(prefix)
-		if l.Error.IsError() {
-			break
-		}
-
-		l.Error = l.Rpc.SetDir(prefix)
-		if l.Error.IsError() {
-			break
-		}
-	}
-
+	l.Native.SetPrefix(prefix)
+	l.Rpc.SetPrefix(prefix)
 	return l.Error
 }
 
@@ -186,8 +163,6 @@ func (l *Loader) NameToPluginPath(id string) (*utils.FilePath, Return.Error) {
 
 func (l *Loader) PluginScan(glob string) Return.Error {
 	for range Only.Once {
-		// plugins, l.Error = m.Base.Scan(m.fileGlob)
-		// plugins, e := plugin.Discover(m.fileGlob, m.Base.GetPath())
 		if l.PluginTypes.Native {
 			l.Error = l.Native.PluginScan(glob)
 			if l.Error.IsError() {
@@ -207,6 +182,7 @@ func (l *Loader) PluginScan(glob string) Return.Error {
 
 	return l.Error
 }
+
 func (l *Loader) PluginScanByExtension(ext ...string) Return.Error {
 	for range Only.Once {
 		if l.PluginTypes.Native {
@@ -252,16 +228,9 @@ func (l *Loader) PluginLoad(path utils.FilePath) (PluginItem, Return.Error) {
 
 	return item, l.Error
 }
+
 func (l *Loader) PluginUnload(path utils.FilePath) Return.Error {
 	for range Only.Once {
-		// var pt PluginTypes
-		// switch {
-		// case path.HasExtension(NativePluginExtensions...):
-		// 	pt.Native = true
-		// default:
-		// 	pt.Rpc = true
-		// }
-
 		if l.PluginTypes.Native {
 			l.Error = l.Native.PluginUnload(path)
 			if l.Error.IsError() {
@@ -282,13 +251,13 @@ func (l *Loader) PluginUnload(path utils.FilePath) Return.Error {
 	return l.Error
 }
 
-func (l *Loader) PluginRegisterAll() (PluginItems, Return.Error) {
+func (l *Loader) PluginRegister() (PluginItems, Return.Error) {
 	var items PluginItems
 
 	for range Only.Once {
 		if l.PluginTypes.Native {
 			var i PluginItems
-			i, l.Error = l.Native.PluginRegisterAll()
+			i, l.Error = l.Native.PluginRegister()
 			if l.Error.IsError() {
 				break
 			}
@@ -296,7 +265,7 @@ func (l *Loader) PluginRegisterAll() (PluginItems, Return.Error) {
 		}
 		if l.PluginTypes.Rpc {
 			var i PluginItems
-			i, l.Error = l.Rpc.PluginRegisterAll()
+			i, l.Error = l.Rpc.PluginRegister()
 			if l.Error.IsError() {
 				break
 			}
@@ -306,55 +275,17 @@ func (l *Loader) PluginRegisterAll() (PluginItems, Return.Error) {
 
 	return items, l.Error
 }
-func (l *Loader) PluginRegister(path utils.FilePath) (PluginItem, Return.Error) {
-	var item PluginItem
 
+func (l *Loader) PluginUnregister() Return.Error {
 	for range Only.Once {
 		if l.PluginTypes.Native {
-			item, l.Error = l.Native.PluginRegister(path)
+			l.Error = l.Native.PluginUnregister()
 			if l.Error.IsError() {
 				break
 			}
 		}
 		if l.PluginTypes.Rpc {
-			item, l.Error = l.Rpc.PluginRegister(path)
-			if l.Error.IsError() {
-				break
-			}
-		}
-	}
-
-	return item, l.Error
-}
-
-func (l *Loader) PluginUnregisterAll() Return.Error {
-	for range Only.Once {
-		if l.PluginTypes.Native {
-			l.Error = l.Native.PluginUnregisterAll()
-			if l.Error.IsError() {
-				break
-			}
-		}
-		if l.PluginTypes.Rpc {
-			l.Error = l.Rpc.PluginUnregisterAll()
-			if l.Error.IsError() {
-				break
-			}
-		}
-	}
-
-	return l.Error
-}
-func (l *Loader) PluginUnregister(path utils.FilePath) Return.Error {
-	for range Only.Once {
-		if l.PluginTypes.Native {
-			l.Error = l.Native.PluginUnregister(path)
-			if l.Error.IsError() {
-				break
-			}
-		}
-		if l.PluginTypes.Rpc {
-			l.Error = l.Rpc.PluginUnregister(path)
+			l.Error = l.Rpc.PluginUnregister()
 			if l.Error.IsError() {
 				break
 			}

@@ -3,6 +3,7 @@ package GoPlugLoader
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	sysPlugin "plugin"
 	"regexp"
@@ -11,7 +12,6 @@ import (
 	"time"
 
 	"github.com/MickMake/GoUnify/Only"
-	goplugin "github.com/hashicorp/go-plugin"
 
 	"github.com/MickMake/GoPlug/GoPlugLoader/Plugin"
 	"github.com/MickMake/GoPlug/utils"
@@ -21,33 +21,9 @@ import (
 	"github.com/MickMake/GoPlug/utils/Return"
 )
 
-//
-// NativePluginInterface
-// ---------------------------------------------------------------------------------------------------- //
-type NativePluginInterface interface {
-	// NewNativePlugin - Create a new instance of this plugin.
-	NewNativePlugin() Return.Error
-	GetNativePlugin() *NativePlugin
-
-	SetPluginType(types Plugin.Types) Return.Error
-	SetInterface(ref any) Return.Error
-	SetHandshakeConfig(goplugin.HandshakeConfig) Return.Error
-
-	Hooks() *Plugin.HookStruct
-	Values() *store.ValueStruct
-
-	Validate() Return.Error
-	Serve() Return.Error
-
-	// IsValid - Validate NativePluginInterface interface
-	IsValid() Return.Error
-
-	context.Context
-	Plugin.Interface
-}
-
 // NewNativePluginInterface - Create a new instance of this interface.
-func NewNativePluginInterface() NativePluginInterface {
+//goland:noinspection GoUnusedExportedFunction
+func NewNativePluginInterface() PluginItemInterface {
 	ret := NewNativePlugin()
 	ret.SetPluginType(Plugin.NativePluginType)
 	return ret
@@ -59,16 +35,80 @@ func NewNativePluginInterface() NativePluginInterface {
 type NativePlugin struct {
 	context context.Context
 	Service NativeService
-
-	Plugin.Plugin
+	Plugin.PluginData
 }
+
+// ---------------------------------------------------------------------------------------------------- //
+
+// IsItemValid - Validate NativePlugin structure and set p.configured if true
+func (p *NativePlugin) IsItemValid() Return.Error {
+	var err Return.Error
+
+	for range Only.Once {
+		if p == nil {
+			err.SetError("NativePlugin is nil")
+			break
+		}
+
+		if p.context == nil {
+			err.SetError("NativePlugin.Context is nil")
+			break
+		}
+
+		err = p.IsCommonValid()
+	}
+
+	return err
+}
+
+func (p *NativePlugin) GetItemData() *Plugin.PluginData {
+	return &p.PluginData
+}
+
+func (p *NativePlugin) GetItemHooks() Plugin.HookStore {
+	return &p.Dynamic.Hooks
+}
+
+func (p *NativePlugin) SetItemInterface(ref any) Return.Error {
+	return p.Dynamic.SetInterface(ref)
+}
+
+func (p *NativePlugin) IsNativePlugin() bool {
+	return true
+}
+
+func (p *NativePlugin) IsRpcPlugin() bool {
+	return false
+}
+
+func (p *NativePlugin) GetPluginPath() *utils.FilePath {
+	return &p.Common.Filename
+}
+
+func (p *NativePlugin) Initialise(args ...any) Return.Error {
+	return p.PluginData.Callback(Plugin.CallbackInitialise, &p.PluginData, args...)
+}
+
+func (p *NativePlugin) Execute(args ...any) Return.Error {
+	return p.PluginData.Callback(Plugin.CallbackExecute, &p.PluginData, args...)
+}
+
+func (p *NativePlugin) Run(args ...any) Return.Error {
+	return p.PluginData.Callback(Plugin.CallbackRun, &p.PluginData, args...)
+}
+
+func (p *NativePlugin) Notify(args ...any) Return.Error {
+	return p.PluginData.Callback(Plugin.CallbackNotify, &p.PluginData, args...)
+}
+
+// ---------------------------------------------------------------------------------------------------- //
 
 // NewNativePlugin - Create a new instance of this structure.
 func NewNativePlugin() *NativePlugin {
 	return &NativePlugin{
-		context: context.Background(),
-		Service: NewNativeService(),
-		Plugin:  *Plugin.NewPlugin(),
+		context:    context.Background(),
+		Service:    NewNativeService(),
+		PluginData: *Plugin.NewPlugin(),
 	}
 }
 
@@ -99,20 +139,6 @@ func (p *NativePlugin) Serve() Return.Error {
 func (p *NativePlugin) Validate() Return.Error {
 	for range Only.Once {
 		p.Error = Return.Ok
-
-		p.Error = p.Services.SetNativeService(p.Dynamic.Identity.Name, sysPlugin.Plugin{})
-		// p.Error = p.Services.SetNativeService(p.Data.Dynamic.Identity.Name, &NativePlugin{
-		// 	context: p.context,
-		// 	Data:    p.Data,
-		// })
-		if p.Error.IsError() {
-			break
-		}
-
-		if p.Services.CountServices() == 0 {
-			p.Error.SetError("No plugin maps defined!")
-			break
-		}
 
 		if p.Common.Logger == nil {
 			var l utils.Logger
@@ -148,29 +174,27 @@ func (p *NativePlugin) Validate() Return.Error {
 		if p.Dynamic.Hooks.Identity == "" {
 			p.Dynamic.Hooks.Identity = p.Dynamic.Identity.Name
 		}
+
+		p.Error = p.SetPluginTypeNative()
+		if p.Error.IsError() {
+			break
+		}
+
+		p.SetHookPlugin(&p.PluginData)
+
+		// if p.Services.CountServices() == 0 {
+		// 	p.Error.SetError("No plugin maps defined!")
+		// 	break
+		// }
+
+		p.Error = p.Services.SetNativeService(p.Dynamic.Identity.Name, sysPlugin.Plugin{})
+		if p.Error.IsError() {
+			break
+		}
+
+		p.Common.Configured = true
 	}
 	return p.Error
-}
-
-// IsValid - Validate NativePlugin structure and set p.configured if true
-func (p *NativePlugin) IsValid() Return.Error {
-	var err Return.Error
-
-	for range Only.Once {
-		if p == nil {
-			err.SetError("native plugin structure is nil")
-			break
-		}
-
-		if p.context == nil {
-			err.SetError("native plugin Context is nil")
-			break
-		}
-
-		err = p.IsCommonValid()
-	}
-
-	return err
 }
 
 // GetInterface - Get the raw interface.
@@ -184,10 +208,87 @@ func (p *NativePlugin) GetInterface() (any, Return.Error) {
 			break
 		}
 
-		raw = p.Common.RawInterface
+		raw = p.Common.GetRawInterface()
 	}
 
 	return raw, err
+}
+
+// ---------------------------------------------------------------------------------------------------- //
+
+func (p *NativePlugin) PluginLoad(id string, pluginPath utils.FilePath) Return.Error {
+	for range Only.Once {
+		p.Error.ReturnClear()
+		p.Error.SetPrefix("")
+		pluginPath.ShortenPaths()
+		p.PluginData.Common.Id = id
+
+		p.Error = pluginPath.FileExists()
+		if p.Error.IsError() {
+			break
+		}
+
+		// ---------------------------------------------------------------------------------------------------- //
+		// Load the plugin and pull in configured data.
+		p.Error = p.Service.Open(pluginPath)
+		if p.Error.IsError() {
+			break
+		}
+
+		var identity *Plugin.Identity
+		identity, p.Error = p.Service.GetIdentity()
+		if p.Error.IsError() {
+			p.Error.SetError("GoPluginIdentity is not globally defined: %s", p.Error)
+			break
+		}
+		p.SetIdentity(identity) // This will be replaced with a full get of GoPluginInterface
+
+		// ---------------------------------------------------------------------------------------------------- //
+		// Reconfigure and check data.
+		log.Println("Looking for GoPluginItem")
+		var GoPluginInterface *PluginItem
+		GoPluginInterface, p.Error = p.Service.GetPluginItem()
+		if p.Error.IsError() {
+			break
+		}
+		if GoPluginInterface.Pluggable == nil {
+			GoPluginInterface.Pluggable = CreatePluginItem(Plugin.NativePluginType, identity)
+		}
+		if GoPluginInterface != nil {
+			native := (*GoPluginInterface).GetItemData()
+			if native == nil {
+				p.Error.SetError("GoPluginInterface is defined, but nil!")
+				break
+			}
+
+			p.PluginData = *native
+		}
+
+		p.SetFilename(pluginPath)
+		p.SetHookPlugin(&p.PluginData)
+		p.SetPluginTypeNative() // Even if the config doesn't set it, do it here.
+		p.SetNativeService(p.Common.Id, *p.Service.Object)
+		p.SetRawInterface(p.Service.Symbol)
+		p.SetStructName(*identity)
+		log.Printf("[%s]: Name:%s Path: %s\n",
+			p.Common.Id, p.Common.Filename.GetName(), p.Common.Filename.String())
+
+		p.Error = p.Callback(Plugin.CallbackInitialise, p)
+		if p.Error.IsError() {
+			break
+		}
+	}
+
+	return p.Error
+}
+
+func (p *NativePlugin) PluginUnload() Return.Error {
+	for range Only.Once {
+		p.Error.ReturnClear()
+		p.Error.SetPrefix("")
+	}
+
+	return p.Error
 }
 
 //
@@ -262,7 +363,7 @@ func (ns *NativeService) Scan() Return.Error {
 
 	for range Only.Once {
 		// Find exported symbols.
-		re := regexp.MustCompile("map\\[(.*)\\]")
+		re := regexp.MustCompile(`map\[(.*)]`)
 		str := fmt.Sprintf("%v", ns.Object)
 		sa := re.FindStringSubmatch(str)
 		if len(sa) < 2 {
@@ -412,91 +513,57 @@ func (ns *NativeService) GetIdentity(lookups ...string) (*Plugin.Identity, Retur
 	return identity, err
 }
 
-// GetRpcPluginInterface - Gets the RpcPluginInterface symbol using several symbol names.
+// GetPluginItem - Gets the PluginItemInterface symbol using several symbol names.
 // Will scan exported symbols if none specified.
-func (ns *NativeService) GetRpcPluginInterface(lookups ...string) (*RpcPluginInterface, Return.Error) {
-	var rpi *RpcPluginInterface
+func (ns *NativeService) GetPluginItem() (*PluginItem, Return.Error) {
+	var rpi *PluginItem
 	var err Return.Error
 
 	for range Only.Once {
-		if len(lookups) == 0 {
-			lookups = []string{Plugin.GoPluginRpcInterface}
-			lookups = append(lookups, ns.ListExported()...)
-		}
+		for name, symType := range ns.Symbols {
+			if symType != "*GoPlugLoader.PluginItem" {
+				continue
+			}
 
-		// var f RpcPluginInterface
-		// f = NewRpcPluginInterface()
-		// find := utils.GetTypeName(f)
-		// find = strings.ReplaceAll(find, "*", "*GoPlugLoader.")
-		for _, lookup := range lookups {
 			var sym any
-			sym, err = ns.LookupType(lookup, "*GoPlugLoader.RpcPluginInterface")
+			sym, err = ns.Lookup(name)
 			if err.IsError() {
 				continue
 			}
 
 			var ok bool
-			rpi, ok = sym.(*RpcPluginInterface)
+			rpi, ok = sym.(*PluginItem)
 			if !ok {
 				err.SetError("Symbol '%s' had type '%s', was expecting '*GoPlugLoader.%s'",
-					lookup, utils.GetTypeName(sym), Plugin.GoPluginRpcInterface)
+					name, utils.GetTypeName(sym), Plugin.GoPluginItem)
 				continue
 			}
 
-			err = (*rpi).IsValid()
-			if err.IsError() {
-				err.SetError("%s is not valid: %s", Plugin.GoPluginRpcInterface, err)
+			if (*rpi).Error.IsError() {
+				err = (*rpi).Error
+				break
 			}
+
+			if (*rpi).Pluggable == nil {
+				// This is actually OK - We will set it up later.
+				break
+			}
+
+			err = (*rpi).IsItemValid()
+			if err.IsError() {
+				err.SetError("%s is not valid: %s", Plugin.GoPluginItem, err)
+				continue
+			}
+
+			if !(*rpi).IsNativePlugin() {
+				continue
+			}
+
 			break
 		}
 
 		if rpi == nil {
-			err.SetError("%s is not defined as global in plugin", Plugin.GoPluginRpcInterface)
-		}
-	}
-
-	return rpi, err
-}
-
-// GetNativePluginInterface - Gets the NativePluginInterface symbol using several symbol names.
-// Will scan exported symbols if none specified.
-func (ns *NativeService) GetNativePluginInterface(lookups ...string) (*NativePluginInterface, Return.Error) {
-	var rpi *NativePluginInterface
-	var err Return.Error
-
-	for range Only.Once {
-		if len(lookups) == 0 {
-			lookups = []string{Plugin.GoPluginNativeInterface}
-			lookups = append(lookups, ns.ListExported()...)
-		}
-
-		// var f NativePluginInterface
-		// find := utils.GetTypeName(f)
-		// find = strings.ReplaceAll(find, "*", "*GoPlugLoader.")
-		for _, lookup := range lookups {
-			var sym any
-			sym, err = ns.LookupType(lookup, "*GoPlugLoader.NativePluginInterface")
-			if err.IsError() {
-				continue
-			}
-
-			var ok bool
-			rpi, ok = sym.(*NativePluginInterface)
-			if !ok {
-				err.SetError("Symbol '%s' had type '%s', was expecting '*GoPlugLoader.%s'",
-					lookup, utils.GetTypeName(sym), Plugin.GoPluginNativeInterface)
-				continue
-			}
-
-			err = (*rpi).IsValid()
-			if err.IsError() {
-				err.SetError("%s is not valid: %s", Plugin.GoPluginNativeInterface, err)
-			}
-			break
-		}
-
-		if rpi == nil {
-			err.SetError("%s is not defined as global in plugin", Plugin.GoPluginNativeInterface)
+			err.SetError("%s is not defined as global in plugin", Plugin.GoPluginItem)
 		}
 	}
 

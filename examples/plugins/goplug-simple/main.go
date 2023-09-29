@@ -1,5 +1,5 @@
 // This program shows how to define a complex setup.
-// An alternative structure, ("PluginData"), is attached to the Plugin.Interface interface.
+// An alternative structure, ("MyPlugin"), is attached to the Plugin.Interface interface.
 // Replacement methods to the Plugin.Interface interface are defined.
 // An alternative hook structure is defined.
 // Hooks are created and attached to both functions and methods.
@@ -20,7 +20,7 @@ import (
 	"github.com/MickMake/GoPlug/utils/Return"
 )
 
-// GoPluginIdentity - Set the GoPlugin identity.
+// GoPluginIdentity - Set the GoPlugin identity. This is required for a minimal setup.
 var GoPluginIdentity = Plugin.Identity{
 	Callbacks: Plugin.Callbacks{
 		Initialise: InitMe,
@@ -35,27 +35,26 @@ var GoPluginIdentity = Plugin.Identity{
 	Maintainers: []string{"mick@mickmake.com", "mick@boutade.net"},
 }
 
-// GoPluginRpcInterface - RPC based plugin.
-var GoPluginRpcInterface GoPlugLoader.RpcPluginInterface
+// MyNativePlugin - Define the plugin as a global.
+var MyNativePlugin GoPlugLoader.PluginItem
 
-// GoPluginNativeInterface - Native based plugin.
-var GoPluginNativeInterface GoPlugLoader.NativePluginInterface
+// MyRpcPlugin - Define the plugin as a global.
+var MyRpcPlugin GoPlugLoader.PluginItem
 
 // ---------------------------------------------------------------------------------------------------- //
 
 // init - For a native plugin, global variables need to be set in init(), because main() is never called.
 func init() {
 	fmt.Println("INIT()")
-	// fmt.Printf("Plugin?: %t\n", utils.IsPlugin())
-	GoPluginRpcInterface = InitRpc()
-	GoPluginNativeInterface = InitNative()
+	MyRpcPlugin = InitRpc()
+	MyNativePlugin = InitNative()
 }
 
 // main - For an RPC plugin, main() will be called. So we can run the RPC server here.
 func main() {
 	err := Return.NewWithPrefix("main")
 	for range Only.Once {
-		err = GoPluginRpcInterface.Serve()
+		err = MyRpcPlugin.Serve()
 		err.Print()
 	}
 }
@@ -63,52 +62,25 @@ func main() {
 // ---------------------------------------------------------------------------------------------------- //
 
 // InitRpc - Set up an RPC based plugin.
-func InitRpc() GoPlugLoader.RpcPluginInterface {
-	var plug GoPlugLoader.RpcPluginInterface
+func InitRpc() GoPlugLoader.PluginItem {
+	var plug GoPlugLoader.PluginItem
 	var err Return.Error
 
 	for range Only.Once {
-		fmt.Println("// ---------------------------------------------------------------------------------------------------- //")
-		log.Printf("GoPluginInit()")
+		log.Printf("InitRpc()")
 
-		var Data Plugin.HookStore
-		Data = new(PluginData)
-		Data.NewHookStore()
-		Data.SetHookPlugin(plug)
-		Data.SetHook("TestExec1", TestExec1)
-
-		plug = GoPlugLoader.NewRpcPluginInterface()
-		err = plug.NewRpcPlugin()
+		plug, err = GoPlugLoader.NewPluginItem(Plugin.RpcPluginType, &GoPluginIdentity)
 		if err.IsError() {
 			break
 		}
 
-		err = plug.SetIdentity(&GoPluginIdentity)
+		plug, err = InitCommon(plug)
 		if err.IsError() {
 			break
 		}
 
-		err = plug.SetPluginType(GoPluginIdentity.PluginTypes)
-		if err.IsError() {
-			break
-		}
-
-		// err = p2.SetInterface(Data)
-		// err = p2.RegisterStructure(Data)
-		err = plug.SetHandshakeConfig(Plugin.HandshakeConfig)
-		if err.IsError() {
-			break
-		}
-
-		err = plug.SetHookStore(Data)
-		if err.IsError() {
-			break
-		}
-
-		err = plug.SetHook("TestExec2", TestExec2)
-		if err.IsError() {
-			break
-		}
+		// Add a hook that is different between RPC & native.
+		err = plug.SetHook("TestExec4", TestExecRpc, "", "", "", "", "", 0)
 
 		err = plug.Validate()
 		if err.IsError() {
@@ -120,7 +92,6 @@ func InitRpc() GoPlugLoader.RpcPluginInterface {
 		// p2.KeySet("func", Test)
 		// p2.RegisterStructure(Data)
 		// p2.RegisterStructure(Test)
-		fmt.Println("// ---------------------------------------------------------------------------------------------------- //")
 	}
 	err.Print()
 
@@ -128,25 +99,42 @@ func InitRpc() GoPlugLoader.RpcPluginInterface {
 }
 
 // InitNative - Set up a native based plugin.
-func InitNative() GoPlugLoader.NativePluginInterface {
-	var plug GoPlugLoader.NativePluginInterface
+func InitNative() GoPlugLoader.PluginItem {
+	var plug GoPlugLoader.PluginItem
 	var err Return.Error
 
 	for range Only.Once {
-		fmt.Println("// ---------------------------------------------------------------------------------------------------- //")
-		log.Printf("GoPluginInit()")
+		log.Printf("InitNative()")
 
-		var Data Plugin.HookStore
-		Data = new(PluginData)
-		Data.NewHookStore()
-		Data.SetHookPlugin(plug)
-		Data.SetHook("TestExec1", TestExec1)
-
-		plug = GoPlugLoader.NewNativePluginInterface()
-		err = plug.NewNativePlugin()
+		plug, err = GoPlugLoader.NewPluginItem(Plugin.NativePluginType, &GoPluginIdentity)
 		if err.IsError() {
 			break
 		}
+
+		plug, err = InitCommon(plug)
+		if err.IsError() {
+			break
+		}
+
+		// Add a hook that is different between RPC & native.
+		err = plug.SetHook("TestExec4", TestExecNative, "", 0)
+
+		err = plug.Validate()
+		if err.IsError() {
+			break
+		}
+	}
+	err.Print()
+
+	return plug
+}
+
+// InitCommon - Set up common plugin parts.
+func InitCommon(plug GoPlugLoader.PluginItem) (GoPlugLoader.PluginItem, Return.Error) {
+	var err Return.Error
+
+	for range Only.Once {
+		log.Printf("InitCommon()")
 
 		err = plug.SetIdentity(&GoPluginIdentity)
 		if err.IsError() {
@@ -163,22 +151,26 @@ func InitNative() GoPlugLoader.NativePluginInterface {
 			break
 		}
 
+		var Data Plugin.HookStore
+		Data = new(MyPlugin)
+		Data.NewHookStore()
+		Data.SetHookPlugin(plug.GetItemData())
+		Data.SetHook("TestExec1", TestExec1, "", "", "", "", "", 0)
+
 		err = plug.SetHookStore(Data)
 		if err.IsError() {
 			break
 		}
 
-		plug.SetHook("TestExec2", TestExec2)
+		err = plug.SetHook("TestExec2", TestExec2, "", "", "", "", "", 0)
 
 		err = plug.Validate()
 		if err.IsError() {
 			break
 		}
-		fmt.Println("// ---------------------------------------------------------------------------------------------------- //")
 	}
-	err.Print()
 
-	return plug
+	return plug, err
 }
 
 // TestExec1 - A test hook.
@@ -197,16 +189,32 @@ func TestExec2(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return
 
 // TestExec3 - Will be executed when this plugin is loaded and also later by an "Execute" function call.
 // See GoPluginIdentity.Callbacks.Execute
-func TestExec3(ctx Plugin.Interface, args ...any) Return.Error {
+func TestExec3(ctx Plugin.PluginDataInterface, args ...any) Return.Error {
 	funcName := utils.GetCaller(0)
 	log.Printf("\nCalled %s(%v)\n", funcName, args)
 	// log.Printf("Called %s(%v)\n # CTX:\n%v\n\n", funcName, args, ctx)
 	return Return.Ok
 }
 
+// TestExecNative - Hook that is different between RPC & native.
+func TestExecNative(ctx Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
+	funcName := utils.GetCaller(0)
+	log.Printf("\nCalled %s(%v)\n", funcName, args)
+	log.Printf("CTX:\n%v\n\n", ctx)
+	return Plugin.HookResponseNil()
+}
+
+// TestExecRpc - Hook that is different between RPC & native.
+func TestExecRpc(ctx Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
+	funcName := utils.GetCaller(0)
+	log.Printf("\nCalled %s(%v)\n", funcName, args)
+	log.Printf("CTX:\n%v\n\n", ctx)
+	return Plugin.HookResponseNil()
+}
+
 // InitMe - Will be executed when this plugin is loaded by the "Initialise" Callback.
 // See GoPluginIdentity.Callbacks.Initialise
-func InitMe(ctx Plugin.Interface, args ...any) Return.Error {
+func InitMe(ctx Plugin.PluginDataInterface, args ...any) Return.Error {
 	funcName := utils.GetCaller(0)
 	log.Printf("\nCalled %s(%v)\n", funcName, args)
 	// log.Printf("Called %s(%v)\n # CTX:\n%v\n\n", funcName, args, ctx)
@@ -222,8 +230,8 @@ type Test struct {
 	C string
 }
 
-// Larry - Another test hook, but is a method off PluginData.
-func (d *PluginData) Larry(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
+// Larry - Another test hook, but is a method off MyPlugin.
+func (d *MyPlugin) Larry(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
 	var response Plugin.HookResponse
 	var err Return.Error
 
@@ -256,8 +264,8 @@ func (d *PluginData) Larry(hook Plugin.HookStruct, args ...any) (Plugin.HookResp
 	return response, err
 }
 
-// Curly - Another test hook, but is a method off PluginData.
-func (d *PluginData) Curly(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
+// Curly - Another test hook, but is a method off MyPlugin.
+func (d *MyPlugin) Curly(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
 	var response Plugin.HookResponse
 	var err Return.Error
 
@@ -291,8 +299,8 @@ func (d *PluginData) Curly(hook Plugin.HookStruct, args ...any) (Plugin.HookResp
 	return response, err
 }
 
-// Mo - Another test hook, but is a method off PluginData.
-func (d *PluginData) Mo(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
+// Mo - Another test hook, but is a method off MyPlugin.
+func (d *MyPlugin) Mo(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
 	funcName := utils.GetCaller(0)
 	log.Printf("\nCalled %s(%v)\n", funcName, args)
 
@@ -304,18 +312,18 @@ func (d *PluginData) Mo(hook Plugin.HookStruct, args ...any) (Plugin.HookRespons
 }
 
 //
-// PluginData
+// MyPlugin
 // ---------------------------------------------------------------------------------------------------- //
-type PluginData struct {
+type MyPlugin struct {
 	Plugin.HookStore
 	Data Plugin.DynamicData
 }
 
 // NewHookStore - Alternative method that will install some hooks.
-func (d *PluginData) NewHookStore() Return.Error {
+func (d *MyPlugin) NewHookStore() Return.Error {
 	var err Return.Error
 	for range Only.Once {
-		d.Data = Plugin.NewDynamicData(Plugin.Plugin{})
+		d.Data = *Plugin.NewDynamicData(Plugin.PluginData{})
 		err = d.Data.Hooks.SetHook("", d.Larry, "", "", 0)
 		if err.IsError() {
 			break
@@ -334,51 +342,51 @@ func (d *PluginData) NewHookStore() Return.Error {
 	return err
 }
 
-func (d *PluginData) SetHookPlugin(plugin Plugin.Interface) {
+func (d *MyPlugin) SetHookPlugin(plugin Plugin.PluginDataInterface) {
 	d.Data.Hooks.SetHookPlugin(plugin)
 }
-func (d *PluginData) GetHookReference() *Plugin.HookStruct {
+func (d *MyPlugin) GetHookReference() *Plugin.HookStruct {
 	return d.Data.Hooks.GetHookReference()
 }
-func (d *PluginData) GetHookIdentity() string {
+func (d *MyPlugin) GetHookIdentity() string {
 	return d.Data.Hooks.GetHookIdentity()
 }
-func (d *PluginData) SetHookIdentity(identity string) Return.Error {
+func (d *MyPlugin) SetHookIdentity(identity string) Return.Error {
 	return d.Data.Hooks.SetHookIdentity(identity)
 }
-func (d *PluginData) HookExists(hook string) bool {
+func (d *MyPlugin) HookExists(hook string) bool {
 	return d.Data.Hooks.HookExists(hook)
 }
-func (d *PluginData) HookNotExists(hook string) bool {
+func (d *MyPlugin) HookNotExists(hook string) bool {
 	return d.Data.Hooks.HookNotExists(hook)
 }
-func (d *PluginData) GetHook(hook string) *Plugin.Hook {
+func (d *MyPlugin) GetHook(hook string) *Plugin.Hook {
 	return d.Data.Hooks.GetHook(hook)
 }
-func (d *PluginData) GetHookName(name string) (string, Return.Error) {
+func (d *MyPlugin) GetHookName(name string) (string, Return.Error) {
 	return d.Data.Hooks.GetHookName(name)
 }
-func (d *PluginData) GetHookFunction(name string) (Plugin.HookFunction, Return.Error) {
+func (d *MyPlugin) GetHookFunction(name string) (Plugin.HookFunction, Return.Error) {
 	return d.Data.Hooks.GetHookFunction(name)
 }
-func (d *PluginData) GetHookArgs(name string) (Plugin.HookArgs, Return.Error) {
+func (d *MyPlugin) GetHookArgs(name string) (Plugin.HookArgs, Return.Error) {
 	return d.Data.Hooks.GetHookArgs(name)
 }
-func (d *PluginData) ValidateHook(args ...any) Return.Error {
+func (d *MyPlugin) ValidateHook(args ...any) Return.Error {
 	return d.Data.Hooks.ValidateHook(args...)
 }
-func (d *PluginData) SetHook(name string, function Plugin.HookFunction, args ...any) Return.Error {
+func (d *MyPlugin) SetHook(name string, function Plugin.HookFunction, args ...any) Return.Error {
 	return d.Data.Hooks.SetHook(name, function, args...)
 }
-func (d *PluginData) CountHooks() int {
+func (d *MyPlugin) CountHooks() int {
 	return d.Data.Hooks.CountHooks()
 }
-func (d *PluginData) ListHooks() Plugin.HookMap {
+func (d *MyPlugin) ListHooks() Plugin.HookMap {
 	return d.Data.Hooks.ListHooks()
 }
-func (d *PluginData) PrintHooks() {
+func (d *MyPlugin) PrintHooks() {
 	d.Data.Hooks.PrintHooks()
 }
-func (d *PluginData) String() string {
+func (d *MyPlugin) String() string {
 	return d.Data.String()
 }

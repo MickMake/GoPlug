@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"os"
+
 	"github.com/MickMake/GoUnify/Only"
 
 	"github.com/MickMake/GoPlug/GoPlugLoader"
@@ -10,14 +13,8 @@ import (
 	"github.com/MickMake/GoPlug/utils/Return"
 )
 
-// GoPluginIdentity - Set the GoPlugin identity.
+// GoPluginIdentity - Set the GoPlugin identity. This is required for a minimal setup.
 var GoPluginIdentity = Plugin.Identity{
-	Callbacks: Plugin.Callbacks{
-		Initialise: nil,
-		Run:        nil,
-		Notify:     nil,
-		Execute:    nil,
-	},
 	Name:        "quote",
 	Version:     "1.0.0",
 	Description: "A GoPlug plugin - Fetch a quote of the day",
@@ -25,47 +22,15 @@ var GoPluginIdentity = Plugin.Identity{
 	Maintainers: []string{"mick@mickmake.com", "mick@boutade.net"},
 }
 
-// GoPluginRpcInterface - RPC based plugin.
-var GoPluginRpcInterface GoPlugLoader.RpcPluginInterface
-
-// GoPluginNativeInterface - Native based plugin.
-var GoPluginNativeInterface GoPlugLoader.NativePluginInterface
+// MyPlugin - Define the plugin as a global. Important for native plugins, not required for RPC.
+var MyPlugin GoPlugLoader.PluginItem
 
 // ---------------------------------------------------------------------------------------------------- //
 
 // init - For a native plugin, global variables need to be set in init(), because main() is never called.
 func init() {
 	var err Return.Error
-
-	for range Only.Once {
-		// Native plugin
-		GoPluginNativeInterface = GoPlugLoader.NewNativePluginInterface()
-		err = GoPluginNativeInterface.NewNativePlugin()
-		if err.IsError() {
-			break
-		}
-
-		err = GoPluginNativeInterface.SetIdentity(&GoPluginIdentity)
-		if err.IsError() {
-			break
-		}
-
-		err = GoPluginNativeInterface.SetHandshakeConfig(Plugin.HandshakeConfig)
-		if err.IsError() {
-			break
-		}
-
-		err = GoPluginNativeInterface.SetHook("", Get, "", 0, "")
-		if err.IsError() {
-			break
-		}
-
-		err = GoPluginNativeInterface.Validate()
-		if err.IsError() {
-			break
-		}
-	}
-
+	MyPlugin, err = CreatePlugin(Plugin.NativePluginType)
 	err.Print()
 }
 
@@ -73,43 +38,64 @@ func init() {
 
 // main - For an RPC plugin, main() will be called. So we can run the RPC server here.
 func main() {
-	var err Return.Error
+	foo, bar := MyPlugin.CallHook("Get", "+Yx9sCPNO2rdepKHAzn23Q==yMrXyexBNoRSxdzP", 1, "men")
+	bar.Print()
+	foo.Print()
 
-	for range Only.Once {
-		// RPC plugin
-		GoPluginRpcInterface = GoPlugLoader.NewRpcPluginInterface()
-		err = GoPluginRpcInterface.NewRpcPlugin()
-		if err.IsError() {
-			break
-		}
-
-		err = GoPluginRpcInterface.SetIdentity(&GoPluginIdentity)
-		if err.IsError() {
-			break
-		}
-
-		err = GoPluginRpcInterface.SetHandshakeConfig(Plugin.HandshakeConfig)
-		if err.IsError() {
-			break
-		}
-
-		err = GoPluginRpcInterface.SetHook("", Get)
-		if err.IsError() {
-			break
-		}
-
-		err = GoPluginRpcInterface.Validate()
-		if err.IsError() {
-			break
-		}
-
-		err = GoPluginRpcInterface.Serve()
+	rpc, err := CreatePlugin(Plugin.RpcPluginType)
+	if err.IsError() {
+		err.Print()
+		os.Exit(1)
 	}
 
-	err.Print()
+	err = rpc.Serve()
+	if err.IsError() {
+		err.Print()
+		os.Exit(1)
+	}
 }
 
 // ---------------------------------------------------------------------------------------------------- //
+
+func CreatePlugin(types Plugin.Types) (GoPlugLoader.PluginItem, Return.Error) {
+	var plug GoPlugLoader.PluginItem
+	var err Return.Error
+
+	for range Only.Once {
+		plug, err = GoPlugLoader.NewPluginItem(types, &GoPluginIdentity)
+		if err.IsError() {
+			break
+		}
+
+		err = plug.SetIdentity(&GoPluginIdentity)
+		if err.IsError() {
+			break
+		}
+
+		err = plug.SetHandshakeConfig(Plugin.HandshakeConfig)
+		if err.IsError() {
+			break
+		}
+
+		err = plug.SetHook("", Get, "", 0, "")
+		if err.IsError() {
+			break
+		}
+
+		err = plug.Validate()
+		if err.IsError() {
+			break
+		}
+	}
+
+	return plug, err
+}
+
+type Quote []struct {
+	Author   string `json:"author"`
+	Category string `json:"category"`
+	Quote    string `json:"quote"`
+}
 
 // Get - This program has only one call - which fetches a web page.
 func Get(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error) {
@@ -152,7 +138,19 @@ func Get(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse, Return.Error
 			break
 		}
 
-		ret, err = Plugin.NewHookResponse(string(body))
+		var quote Quote
+		e := json.Unmarshal(body, &quote)
+		if e != nil {
+			err.SetError(e)
+			break
+		}
+
+		if len(quote) == 0 {
+			err.SetError("No quotes returned")
+			break
+		}
+
+		ret, err = Plugin.NewHookResponse(quote[0])
 	}
 
 	return ret, err

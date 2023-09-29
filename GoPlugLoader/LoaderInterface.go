@@ -32,11 +32,8 @@ type LoaderInterface interface {
 	GetFiles() utils.FilePaths
 	NameToPluginPath(id string) (*utils.FilePath, Return.Error)
 
-	PluginRegisterAll() (PluginItems, Return.Error)
-	PluginUnregisterAll() Return.Error
-
-	PluginRegister(path utils.FilePath) (PluginItem, Return.Error)
-	PluginUnregister(path utils.FilePath) Return.Error
+	PluginRegister() (PluginItems, Return.Error)
+	PluginUnregister() Return.Error
 
 	PluginLoad(path utils.FilePath) (PluginItem, Return.Error)
 	PluginUnload(path utils.FilePath) Return.Error
@@ -52,13 +49,27 @@ type LoaderInterface interface {
 	PluginStore
 }
 
+// NewLoaders - Create a new instance of this structure.
+func NewLoaders(dir *utils.FilePath, file *utils.FilePath, cfg *Plugin.Identity, logger *utils.Logger) LoaderInterface {
+	var err Return.Error
+	err.SetPrefix("Loader: ")
+
+	return &Loader{
+		Native:      NewNativeLoader(dir, cfg, logger),
+		Rpc:         NewRpcLoader(dir, file, cfg, logger),
+		PluginTypes: Plugin.AllPluginTypes,
+		Error:       err,
+	}
+}
+
 //
 // ChildLoader - child implementation of LoaderInterface struct, used by child loaders
 // ---------------------------------------------------------------------------------------------------- //
 type ChildLoader struct {
 	baseDir *utils.FilePath
+	glob    string
 	prefix  string
-	Files   utils.FilePaths
+	Files   utils.FilePaths `json:"files"`
 	logger  *utils.Logger
 	logfile *utils.FilePath
 	store   PluginStore

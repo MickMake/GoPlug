@@ -1,4 +1,0 @@
-PluginManager.go:230: [INFO]: Plugin BaseDir is '/Volumes/home/mick/Documents/GoLang/plugins/GoPlug/examples'
-PluginManager.go:200: [INFO]: Plugin BaseDir is '/Volumes/home/mick/Documents/GoLang/plugins/GoPlug/examples'
-Loader.go:41: [INFO]: Registering 0 plugins.
-NativeLoader.go:138: [INFO]: 1 plugin files found in /Volumes/home/mi ... lloworld

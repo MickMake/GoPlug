@@ -3,6 +3,7 @@ package Return
 import (
 	"errors"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -14,7 +15,6 @@ type Error struct {
 	when    time.Time
 	err     error
 	warning error
-	// FOO ReturnInterface
 }
 
 var Ok Error
@@ -180,6 +180,13 @@ func (e *Error) IsWarning() bool {
 
 func (e *Error) IsNotWarning() bool {
 	return !e.IsWarning()
+}
+
+func (e *Error) ExitIfError() {
+	if e.IsError() {
+		e.Print()
+		os.Exit(1)
+	}
 }
 
 func (e *Error) Print() {

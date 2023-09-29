@@ -197,7 +197,12 @@ func (p FilePath) String() string {
 	for range Only.Once {
 		if p.shortenPath {
 			// @TODO - Add the path shortening code in here.
-			ret = p.path
+			ret = strings.TrimPrefix(p.path, p.basePath)
+			if p.baseReplace != "" {
+				ret = p.baseReplace + ret
+			} else {
+				ret = strings.TrimPrefix(ret, "/")
+			}
 			break
 		}
 
@@ -560,6 +565,7 @@ func (p *FilePath) Scan(glob string) (FilePaths, Return.Error) {
 					// if !pp.HasExtension(ext...) {
 					// 	continue
 					// }
+					pp.ShortenPaths()
 					pp.SetAltPath(p.GetDir(), AltPathString)
 					candidates.Add(pp)
 				}
@@ -579,6 +585,7 @@ func (p *FilePath) Scan(glob string) (FilePaths, Return.Error) {
 			// if !pp.HasExtension(ext...) {
 			// 	continue
 			// }
+			pp.ShortenPaths()
 			pp.SetAltPath(p.GetDir(), AltPathString)
 			candidates.Add(pp)
 		}

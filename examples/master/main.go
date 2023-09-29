@@ -5,17 +5,13 @@ import (
 	"os"
 
 	"github.com/MickMake/GoUnify/Only"
+	owm "github.com/briandowns/openweathermap"
 
 	"github.com/MickMake/GoPlug"
 	"github.com/MickMake/GoPlug/GoPlugLoader"
 	"github.com/MickMake/GoPlug/GoPlugLoader/Plugin"
 	"github.com/MickMake/GoPlug/utils/Return"
 )
-
-// Manager - Define the manager structure. Can be anything you want,
-// but will be based on the ManagerInterface interface.
-type Manager struct {
-}
 
 // GoPlugin - Define the identity of the manager. Will be used to determine what plugins can run.
 var GoPlugin = Plugin.Identity{
@@ -47,8 +43,6 @@ var GoPlugin = Plugin.Identity{
 	},
 }
 
-// var pluginNative Manager
-
 func main() {
 	var err Return.Error
 
@@ -71,6 +65,12 @@ func main() {
 			break
 		}
 
+		// Define the plugin directory.
+		err = manager.SetFileGlob("goplug-*")
+		if err.IsError() {
+			break
+		}
+
 		// Define the identity of the manager.
 		err = manager.SetIdentity(GoPlugin)
 		if err.IsError() {
@@ -84,7 +84,7 @@ func main() {
 		}
 
 		// Define what plugins to load, (native, rpc, or both).
-		err = manager.SetPluginTypes(Plugin.NativePluginType) // Plugin.AllPluginTypes
+		err = manager.SetPluginTypes(Plugin.AllPluginTypes) // Plugin.AllPluginTypes
 		if err.IsError() {
 			break
 		}
@@ -104,8 +104,14 @@ func main() {
 		// Print them all.
 		manager.ListPlugins()
 
-		// Run tests on the "quote" plugin.
-		err = Quote(manager)
+		// Run tests on the "fail" plugin.
+		err = Fail(manager)
+		if err.IsError() {
+			fmt.Printf("This plugin failed, as expected: %s\n", err)
+		}
+
+		// Run tests on the "minimal" plugin.
+		err = Minimal(manager)
 		if err.IsError() {
 			break
 		}
@@ -118,6 +124,12 @@ func main() {
 
 		// Run tests on the "openweathermap" plugin.
 		err = OpenWeather(manager)
+		if err.IsError() {
+			break
+		}
+
+		// Run tests on the "quote" plugin.
+		err = Quote(manager)
 		if err.IsError() {
 			break
 		}
@@ -137,30 +149,155 @@ func main() {
 	os.Exit(0)
 }
 
+func Fail(manager GoPlug.Manager) Return.Error {
+	var err Return.Error
+
+	for range Only.Once {
+		var plugin *GoPlugLoader.PluginItem
+
+		fmt.Println("\n// ---------------------------------------------------------------------------------------------------- //")
+		fmt.Println("#### Fail()")
+		plugin, err = manager.GetPluginByName("fail")
+		if err.IsError() {
+			break
+		}
+
+		err = plugin.Execute()
+		if err.IsError() {
+			break
+		}
+	}
+
+	return err
+}
+
+func Minimal(manager GoPlug.Manager) Return.Error {
+	var err Return.Error
+
+	for range Only.Once {
+		var plugin *GoPlugLoader.PluginItem
+
+		fmt.Println("\n// ---------------------------------------------------------------------------------------------------- //")
+		fmt.Println("#### Minimal()")
+		plugin, err = manager.GetPluginByName("minimal")
+		if err.IsError() {
+			break
+		}
+
+		err = plugin.Execute()
+		if err.IsError() {
+			break
+		}
+	}
+
+	return err
+}
+
 func HelloWorld(manager GoPlug.Manager) Return.Error {
 	var err Return.Error
 
 	for range Only.Once {
 		var plugin *GoPlugLoader.PluginItem
 
+		fmt.Println("\n// ---------------------------------------------------------------------------------------------------- //")
+		fmt.Println("#### HelloWorld()")
 		plugin, err = manager.GetPluginByName("helloworld")
 		if err.IsError() {
 			break
 		}
 
-		plugin.Data.PrintHooks()
+		plugin.Pluggable.PrintHooks()
 
 		var response Plugin.HookResponse
-		response, err = plugin.Data.CallHook("TestExec2", "can", "you", "see", "these", "args", 42)
+		response, err = plugin.Pluggable.CallHook("HelloWorld")
 		if err.IsError() {
 			break
 		}
 		response.Print()
+	}
 
-		err = plugin.Execute()
+	return err
+}
+
+func OpenWeather(manager GoPlug.Manager) Return.Error {
+	var err Return.Error
+
+	for range Only.Once {
+		var plugin *GoPlugLoader.PluginItem
+
+		fmt.Println("\n// ---------------------------------------------------------------------------------------------------- //")
+		fmt.Println("#### OpenWeather() Check in on the weather...")
+		plugin, err = manager.GetPluginByName("openweathermap")
 		if err.IsError() {
 			break
 		}
+
+		plugin.Pluggable.PrintHooks()
+
+		var response Plugin.HookResponse
+
+		fmt.Println("OpenWeather() LoadConfig")
+		response, err = plugin.Pluggable.CallHook("LoadConfig")
+		if err.IsError() {
+			fmt.Printf("LoadConfig: %s\n", err)
+			fmt.Println("LoadConfig: Since we have an error, or the config file isn't there - we'll set the keys.")
+
+			fmt.Println("SetApiKey")
+			response, err = plugin.Pluggable.CallHook("SetApiKey", "c86a53ab92071be04a20f7580f780fc0")
+			if err.IsError() {
+				break
+			}
+
+			fmt.Println("SetLocation")
+			response, err = plugin.Pluggable.CallHook("SetLocation", "Sydney")
+			if err.IsError() {
+				break
+			}
+
+			fmt.Println("SetUnit")
+			response, err = plugin.Pluggable.CallHook("SetUnit", "C")
+			if err.IsError() {
+				break
+			}
+
+			fmt.Println("SetLanguage")
+			response, err = plugin.Pluggable.CallHook("SetLanguage", "en")
+			if err.IsError() {
+				break
+			}
+
+			fmt.Println("SaveConfig")
+			response, err = plugin.Pluggable.CallHook("SaveConfig")
+			if err.IsError() {
+				break
+			}
+		}
+
+		fmt.Println("OpenWeather() LoadConfig: Checking key")
+		response, err = plugin.Pluggable.CallHook("GetApiKey")
+		fmt.Printf("OpenWeather() ApiKey: %s\n", response)
+		if err.IsError() {
+			break
+		}
+
+		foo := response.AsString()
+		if foo == "" {
+			err.SetError("OpenWeather() apikey is still empty")
+			break
+		}
+
+		fmt.Println("OpenWeather() Get")
+		response, err = plugin.Pluggable.CallHook("Get")
+		if err.IsError() {
+			break
+		}
+
+		weather := response.Value.(owm.CurrentWeatherData)
+		fmt.Printf("OpenWeather() Place: %s\n", weather.Name)
+		fmt.Printf("OpenWeather() Longitude: %f\tLatitude: %f\n", weather.GeoPos.Longitude, weather.GeoPos.Latitude)
+		fmt.Printf("OpenWeather() Temperature: %.1f (min:%.1f / max:%.2f)\n", weather.Main.Temp, weather.Main.TempMin, weather.Main.TempMax)
+		fmt.Printf("OpenWeather() Humidity: %d\n", weather.Main.Humidity)
+		fmt.Printf("OpenWeather() Pressure: %f\n", weather.Main.Pressure)
 	}
 
 	return err
@@ -172,28 +309,33 @@ func Quote(manager GoPlug.Manager) Return.Error {
 	for range Only.Once {
 		var plugin *GoPlugLoader.PluginItem
 
+		fmt.Println("\n// ---------------------------------------------------------------------------------------------------- //")
+		fmt.Println("#### Quote() Get a quotable quote...")
 		plugin, err = manager.GetPluginByName("quote")
 		if err.IsError() {
 			break
 		}
 
-		plugin.Data.PrintHooks()
+		plugin.Pluggable.PrintHooks()
 
-		err = plugin.Execute()
-		if err.IsError() {
-			break
-		}
-
-		fmt.Println("#### Get a quotable quote...")
+		fmt.Println("Quote() CallHook Get")
 		var response Plugin.HookResponse
-
-		fmt.Println("Get")
-		response, err = plugin.Data.CallHook("Get", "+Yx9sCPNO2rdepKHAzn23Q==yMrXyexBNoRSxdzP", 1, "men")
+		response, err = plugin.Pluggable.CallHook("Get", "+Yx9sCPNO2rdepKHAzn23Q==yMrXyexBNoRSxdzP", 1, "men")
 		if err.IsError() {
 			break
 		}
 
-		response.Print()
+		if !response.TypeMatches(`struct { Author string "json:\"author\""; Category string "json:\"category\""; Quote string "json:\"quote\"" }`) {
+			err.SetError("Quote() Weird response from plugin: %v\n", response)
+			break
+		}
+
+		quote := response.Value.(struct {
+			Author   string `json:"author"`
+			Category string `json:"category"`
+			Quote    string `json:"quote"`
+		})
+		fmt.Printf("\"%s\"\n\t- %s\n", quote.Quote, quote.Author)
 	}
 
 	return err
@@ -206,26 +348,33 @@ func Simple(manager GoPlug.Manager) Return.Error {
 		var plugin *GoPlugLoader.PluginItem
 
 		fmt.Println("\n// ---------------------------------------------------------------------------------------------------- //")
-		fmt.Println("Testing Simple plugin")
+		fmt.Println("#### Simple() Testing 'Simple' plugin")
 
 		plugin, err = manager.GetPluginByName("simple")
 		if err.IsError() {
 			break
 		}
 
-		plugin.Data.PrintHooks()
+		plugin.Pluggable.PrintHooks()
 
 		var response Plugin.HookResponse
 
 		fmt.Printf("#### Calling TestExec1()\n")
-		response, err = plugin.Data.CallHook("TestExec1", "can", "you", "see", "these", "args", 42)
+		response, err = plugin.Pluggable.CallHook("TestExec1", "can", "you", "see", "these", "args", 42)
 		if err.IsError() {
 			break
 		}
 		response.Print()
 
 		fmt.Printf("#### Calling TestExec2()\n")
-		response, err = plugin.Data.CallHook("TestExec2", "can", "you", "see", "these", "args", 42)
+		response, err = plugin.Pluggable.CallHook("TestExec2", "and", "what", "about", "these", "args", -42)
+		if err.IsError() {
+			break
+		}
+		response.Print()
+
+		fmt.Printf("#### Calling TestExec4() - output will be different between RPC and native\n")
+		response, err = plugin.Pluggable.CallHook("TestExec4", "What am I?", 4242)
 		if err.IsError() {
 			break
 		}
@@ -238,19 +387,19 @@ func Simple(manager GoPlug.Manager) Return.Error {
 		}
 
 		fmt.Println("Calling Larry(42, \"42\", 42) - invalid args.")
-		response, err = plugin.Data.CallHook("Larry", 42, "42", 42)
+		response, err = plugin.Pluggable.CallHook("Larry", 42, "42", 42)
 		response.Print()
 		err.Print()
 
 		fmt.Println("Calling Larry(\"hey now\", \"this finally works\", 42) - valid args.")
-		response, err = plugin.Data.CallHook("Larry", "hey now", "this finally works", 42)
+		response, err = plugin.Pluggable.CallHook("Larry", "hey now", "this finally works", 42)
 		response.Print()
 		if err.IsError() {
 			break
 		}
 
 		fmt.Println("Calling Curly(nil, nil) - invalid args.")
-		response, err = plugin.Data.CallHook("Curly", nil, nil)
+		response, err = plugin.Pluggable.CallHook("Curly", nil, nil)
 		response.Print()
 		err.Print()
 
@@ -260,25 +409,25 @@ func Simple(manager GoPlug.Manager) Return.Error {
 			B string
 			C string
 		}
-		response, err = plugin.Data.CallHook("Curly", 42, test{A: "1", B: "2", C: "3"})
+		response, err = plugin.Pluggable.CallHook("Curly", 42, test{A: "1", B: "2", C: "3"})
 		response.Print()
 		if err.IsError() {
 			break
 		}
 
 		fmt.Println("Calling Mo(42) - invalid number of args.")
-		response, err = plugin.Data.CallHook("Mo", 42)
+		response, err = plugin.Pluggable.CallHook("Mo", 42)
 		response.Print()
 		err.Print()
 
 		fmt.Println("Calling Mo(nil, nil) - valid args.")
-		response, err = plugin.Data.CallHook("Mo")
+		response, err = plugin.Pluggable.CallHook("Mo")
 		response.Print()
 		if err.IsError() {
 			break
 		}
 
-		plugin.Data.SetValue(
+		plugin.Pluggable.SetValue(
 			"sample", struct {
 				string
 				int
@@ -288,91 +437,16 @@ func Simple(manager GoPlug.Manager) Return.Error {
 			},
 		)
 
-		value := plugin.Data.GetValue("sample")
+		value := plugin.Pluggable.GetValue("sample")
 		fmt.Printf("value: %v\n", value)
 
-		hooks := plugin.GetItemHooks(nil)
+		hooks := plugin.GetItemHooks()
 		hook := hooks.GetHook("Larry")
 		fmt.Println("Calling Larry(42, \"42\", 42) - invalid args.")
 		err = hook.Validate()
 		if err.IsError() {
 			break
 		}
-	}
-
-	return err
-}
-
-func OpenWeather(manager GoPlug.Manager) Return.Error {
-	var err Return.Error
-
-	for range Only.Once {
-		var plugin *GoPlugLoader.PluginItem
-
-		plugin, err = manager.GetPluginByName("openweathermap")
-		if err.IsError() {
-			break
-		}
-
-		plugin.Data.PrintHooks()
-
-		err = plugin.Execute()
-		if err.IsError() {
-			break
-		}
-
-		fmt.Println("#### Check in on the weather...")
-		var response Plugin.HookResponse
-
-		fmt.Println("LoadConfig")
-		response, err = plugin.Data.CallHook("LoadConfig")
-		if err.IsError() {
-			fmt.Printf("LoadConfig: %s\n", err)
-			fmt.Println("LoadConfig: Setting up variables.")
-
-			fmt.Println("SetApiKey")
-			response, err = plugin.Data.CallHook("SetApiKey", "c86a53ab92071be04a20f7580f780fc0")
-			if err.IsError() {
-				break
-			}
-
-			fmt.Println("SetLocation")
-			response, err = plugin.Data.CallHook("SetLocation", "Sydney")
-			if err.IsError() {
-				break
-			}
-
-			fmt.Println("SetUnit")
-			response, err = plugin.Data.CallHook("SetUnit", "C")
-			if err.IsError() {
-				break
-			}
-
-			fmt.Println("SetLanguage")
-			response, err = plugin.Data.CallHook("SetLanguage", "en")
-			if err.IsError() {
-				break
-			}
-
-			fmt.Println("SaveConfig")
-			response, err = plugin.Data.CallHook("SaveConfig")
-			if err.IsError() {
-				break
-			}
-		}
-
-		fmt.Println("LoadConfig: Checking key")
-		response, err = plugin.Data.CallHook("GetApiKey")
-		fmt.Printf("GetApiKey: %s\n", response)
-		err.Print()
-		response.Print()
-		foo := response.AsString()
-		fmt.Printf("fii:[%s]\n", foo)
-
-		fmt.Println("Get")
-		response, err = plugin.Data.CallHook("Get")
-		response.Print()
-		err.Print()
 	}
 
 	return err

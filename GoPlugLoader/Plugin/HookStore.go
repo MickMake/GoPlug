@@ -22,7 +22,7 @@ type HookStore interface {
 	// NewHookStore - Set up the FuncMap structure.
 	NewHookStore() Return.Error
 
-	SetHookPlugin(plugin Interface)
+	SetHookPlugin(plugin PluginDataInterface)
 	GetHookReference() *HookStruct
 
 	// GetIdentity() *GoPlugLoader.PluginIdentity
@@ -62,6 +62,7 @@ type HookStore interface {
 }
 
 // NewHookStore - Create a HookStore interface structure instance.
+//goland:noinspection GoUnusedExportedFunction
 func NewHookStore() HookStore {
 	return &HookStruct{
 		Hooks: make(HookMap),
@@ -72,11 +73,11 @@ func NewHookStore() HookStore {
 // HookStruct
 // ---------------------------------------------------------------------------------------------------- //
 type HookStruct struct {
-	Identity string
-	Hooks    HookMap
-	Master   bool
-	Error    Return.Error
-	Plugin   Interface
+	Identity string       `json:"identity,omitempty"`
+	Hooks    HookMap      `json:"-"`
+	Master   bool         `json:"master,omitempty"`
+	Error    Return.Error `json:"-"`
+	plugin   PluginDataInterface
 }
 
 // NewHookStruct - Create a HookStruct structure instance.
@@ -93,9 +94,9 @@ func (h *HookStruct) NewHookStore() Return.Error {
 	return Return.Ok
 }
 
-func (h *HookStruct) SetHookPlugin(plugin Interface) {
+func (h *HookStruct) SetHookPlugin(plugin PluginDataInterface) {
 	h.Error = Return.Ok
-	h.Plugin = plugin
+	h.plugin = plugin
 }
 
 func (h *HookStruct) GetHookReference() *HookStruct {
@@ -121,12 +122,6 @@ func (h *HookStruct) HookExists(name string) bool {
 		return false
 	}
 	return true
-	// p.Error = Return.Ok
-	// name = strings.TrimSpace(name)
-	// if _, ok := p.Hooks[name]; ok {
-	// 	return true
-	// }
-	// return false
 }
 
 // HookNotExists - Inverse of Exists()
@@ -136,24 +131,12 @@ func (h *HookStruct) HookNotExists(name string) bool {
 		return true
 	}
 	return false
-	// p.Error = Return.Ok
-	// name = strings.TrimSpace(name)
-	// if _, ok := p.Hooks[name]; ok {
-	// 	return false
-	// }
-	// return true
 }
 
 // GetHook - Get a key's value.
 func (h *HookStruct) GetHook(name string) *Hook {
 	hook, _ := h.Hooks.Get(name)
 	return hook
-	// p.Error = Return.Ok
-	// name = strings.TrimSpace(name)
-	// if value, ok := p.Hooks[name]; ok {
-	// 	return value
-	// }
-	// return new(Hook)
 }
 
 // GetHookName - Get a key's value.
@@ -164,13 +147,6 @@ func (h *HookStruct) GetHookName(name string) (string, Return.Error) {
 		return "", h.Error
 	}
 	return hook.Name, h.Error
-	// p.Error = Return.Ok
-	// name = strings.TrimSpace(name)
-	// if value, ok := p.Hooks[name]; ok {
-	// 	return value.Name, p.Error
-	// }
-	// p.Error.SetError("hook '%s' not found", name)
-	// return "", p.Error
 }
 
 // GetHookFunction - Get a key's value.
@@ -180,14 +156,7 @@ func (h *HookStruct) GetHookFunction(name string) (HookFunction, Return.Error) {
 	if h.Error.IsError() {
 		return nil, h.Error
 	}
-	return hook.Function, h.Error
-	// p.Error = Return.Ok
-	// name = strings.TrimSpace(name)
-	// if value, ok := p.Hooks[name]; ok {
-	// 	return value.Function, p.Error
-	// }
-	// p.Error.SetError("hook '%s' not found", name)
-	// return nil, p.Error
+	return hook.function, h.Error
 }
 
 // GetHookArgs - Get a key's value.
@@ -198,13 +167,6 @@ func (h *HookStruct) GetHookArgs(name string) (HookArgs, Return.Error) {
 		return HookArgs{}, h.Error
 	}
 	return hook.Args, h.Error
-	// p.Error = Return.Ok
-	// name = strings.TrimSpace(name)
-	// if value, ok := p.Hooks[name]; ok {
-	// 	return value.Args, p.Error
-	// }
-	// p.Error.SetError("hook '%s' not found", name)
-	// return nil, p.Error
 }
 
 // SetHook - Set a key value pair.
@@ -221,9 +183,8 @@ func (h *HookStruct) SetHook(name string, function HookFunction, args ...any) Re
 		hookArgs = append(hookArgs, NewHookArg(a))
 	}
 	hook := &Hook{
-		// Name:     utils.GetFunctionName(function),
 		Name:     fp + "." + fm,
-		Function: function,
+		function: function,
 		Args:     hookArgs,
 	}
 	h.Hooks[name] = hook
@@ -247,7 +208,7 @@ func (h *HookStruct) CallHook(name string, args ...any) (HookResponse, Return.Er
 			break
 		}
 
-		resp, h.Error = hook.Function(*h, args...)
+		resp, h.Error = hook.function(*h, args...)
 	}
 	return resp, h.Error
 }
@@ -260,8 +221,7 @@ func (h *HookStruct) CountHooks() int {
 
 func (h *HookStruct) ListHooks() HookMap {
 	h.Error = Return.Ok
-	// TODO implement me
-	panic("implement me")
+	return h.Hooks
 }
 
 func (h *HookStruct) PrintHooks() {
@@ -290,7 +250,7 @@ func (h *HookStruct) ValidateHook(args ...any) Return.Error {
 			break
 		}
 
-		if hook.Function == nil {
+		if hook.function == nil {
 			h.Error.SetError("hook function is nil: looking for %s", name)
 			break
 		}
@@ -320,9 +280,9 @@ func (m *HookMap) Get(name string) (*Hook, Return.Error) {
 // Hook
 // ---------------------------------------------------------------------------------------------------- //
 type Hook struct {
-	Name     string
-	Function HookFunction
-	Args     HookArgs
+	Name     string `json:"name,omitempty"`
+	function HookFunction
+	Args     HookArgs `json:"args,omitempty"`
 }
 
 func (h *Hook) Validate(args ...any) Return.Error {
@@ -334,12 +294,11 @@ func (h *Hook) Validate(args ...any) Return.Error {
 			break
 		}
 
-		if h.Function == nil {
+		if h.function == nil {
 			err.SetError("Hook function not defined")
 			break
 		}
 
-		// hookArgs := NewHookArgs(args...)
 		err = h.Args.Validate(args...)
 	}
 
@@ -355,28 +314,9 @@ func (h Hook) String() string {
 // HookCallArgs
 // ---------------------------------------------------------------------------------------------------- //
 type HookCallArgs struct {
-	Name string
-	Args []any
+	Name string `json:"name,omitempty"`
+	Args []any  `json:"args,omitempty"`
 }
-
-// func (h *Hook) Run(args ...any) (HookResponse, Return.Error) {
-// 	var response HookResponse
-// 	var err Return.Error
-//
-// 	for range Only.Once {
-// 		err = h.Validate(args...)
-// 		if err.IsError() {
-// 			break
-// 		}
-//
-// 		log.Printf("Run: %s(%s)", h.Name, h.Args)
-// 		response, err = h.Function(args...)
-// 		log.Printf("Response: %s", response)
-// 		log.Printf("Error: %s", err)
-// 	}
-//
-// 	return response, err
-// }
 
 //
 // HookFunction
@@ -388,6 +328,7 @@ type HookFunction func(hook HookStruct, args ...any) (HookResponse, Return.Error
 // ---------------------------------------------------------------------------------------------------- //
 type HookArgs []HookArg
 
+//goland:noinspection GoUnusedExportedFunction
 func NewHookArgs(args ...any) HookArgs {
 	var ret HookArgs
 	for _, arg := range args {
@@ -453,13 +394,9 @@ func (a HookArg) String() string {
 // HookResponse
 // ---------------------------------------------------------------------------------------------------- //
 type HookResponse struct {
-	Value any
-	Type  string
+	Value any    `json:"-"`
+	Type  string `json:"type,omitempty"`
 }
-
-var HookResponseNil = HookResponse{}
-
-// type HookResponse json.RawMessage
 
 func NewHookResponse(response any) (HookResponse, Return.Error) {
 	var ret HookResponse
@@ -469,12 +406,29 @@ func NewHookResponse(response any) (HookResponse, Return.Error) {
 	return ret, err
 }
 
+func HookResponseNil() (HookResponse, Return.Error) {
+	return HookResponse{}, Return.Ok
+}
+
 func (r HookResponse) String() string {
-	return fmt.Sprintf("%s\n", r.Value)
+	if r.Value == nil {
+		return ""
+	}
+	return fmt.Sprintf("%v", r.Value)
 }
 
 func (r *HookResponse) Print() {
-	fmt.Print(r.String())
+	if r.Value == nil {
+		return
+	}
+	fmt.Println(r.String())
+}
+
+func (r *HookResponse) TypeMatches(Type string) bool {
+	if r.Type == Type {
+		return true
+	}
+	return false
 }
 
 func (r *HookResponse) AsString() string {
@@ -482,30 +436,26 @@ func (r *HookResponse) AsString() string {
 	return ret
 }
 
+func (r *HookResponse) AsByteArray() []byte {
+	return r.Value.([]byte)
+}
+
 // ---------------------------------------------------------------------------------------------------- //
 
+//goland:noinspection GoUnusedExportedFunction
 func HookArgAsString(arg any) *string {
 	value, err := Cast.ToStringE(arg)
 	if err == nil {
 		return &value
 	}
 	return nil
-	// if utils.GetTypeKind(arg) == reflect.String {
-	// 	r := arg.(string)
-	// 	return &r
-	// }
-	// return nil
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func HookArgAsInt(arg any) *int {
 	value, err := Cast.ToIntE(arg)
 	if err == nil {
 		return &value
 	}
 	return nil
-	// if utils.GetTypeKind(arg) == reflect.Int {
-	// 	r := arg.(int)
-	// 	return &r
-	// }
-	// return nil
 }

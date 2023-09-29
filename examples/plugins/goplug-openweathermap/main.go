@@ -2,6 +2,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/MickMake/GoUnify/Only"
 	owm "github.com/briandowns/openweathermap"
 
@@ -26,187 +28,106 @@ var GoPluginIdentity = Plugin.Identity{
 	Maintainers: []string{"mick@mickmake.com", "mick@boutade.net"},
 }
 
-// GoPluginRpcInterface - RPC based plugin.
-var GoPluginRpcInterface GoPlugLoader.RpcPluginInterface
-
-// GoPluginNativeInterface - Native based plugin.
-var GoPluginNativeInterface GoPlugLoader.NativePluginInterface
+// MyPlugin - Define the plugin as a global. Important for native plugins, not required for RPC.
+var MyPlugin GoPlugLoader.PluginItem
 
 // ---------------------------------------------------------------------------------------------------- //
 
 // init - For a native plugin, global variables need to be set in init(), because main() is never called.
 func init() {
-	var err Return.Error
-	var weather Weather
-
-	GoPluginRpcInterface, err = InitRpc(&weather)
-	if err.IsError() {
-		err.Print()
-		return
-	}
-
-	GoPluginNativeInterface, err = InitNative(&weather)
-	if err.IsError() {
-		err.Print()
-		return
-	}
+	err := CreatePlugin(Plugin.NativePluginType)
+	err.Print()
 }
 
 // main - For an RPC plugin, main() will be called. So we can run the RPC server here.
 func main() {
-	err := GoPluginRpcInterface.Serve()
-	err.Print()
+	err := CreatePlugin(Plugin.RpcPluginType)
+	if err.IsError() {
+		err.Print()
+		os.Exit(1)
+	}
+
+	err = MyPlugin.Serve()
+	if err.IsError() {
+		err.Print()
+		os.Exit(1)
+	}
 }
 
-// InitRpc - Set up an RPC based plugin.
-func InitRpc(w *Weather) (GoPlugLoader.RpcPluginInterface, Return.Error) {
-	var rpc GoPlugLoader.RpcPluginInterface
+func CreatePlugin(types Plugin.Types) Return.Error {
 	var err Return.Error
+	var weather Weather
 
 	for range Only.Once {
-		rpc = GoPlugLoader.NewRpcPluginInterface()
-		err = rpc.NewRpcPlugin()
+		MyPlugin, err = GoPlugLoader.NewPluginItem(types, &GoPluginIdentity)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetIdentity(&GoPluginIdentity)
+		err = MyPlugin.SetIdentity(&GoPluginIdentity)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHandshakeConfig(Plugin.HandshakeConfig)
+		err = MyPlugin.SetHandshakeConfig(Plugin.HandshakeConfig)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetInterface(w)
+		err = MyPlugin.SetInterface(weather)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHook("", w.Get)
+		err = MyPlugin.SetHook("", weather.Get)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHook("", w.SetLocation, "")
+		err = MyPlugin.SetHook("", weather.SetLocation, "")
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHook("", w.SetUnit, "")
+		err = MyPlugin.SetHook("", weather.SetUnit, "")
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHook("", w.SetLanguage, "")
+		err = MyPlugin.SetHook("", weather.SetLanguage, "")
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHook("", w.SetApiKey, "")
+		err = MyPlugin.SetHook("", weather.SetApiKey, "")
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHook("", w.GetApiKey)
+		err = MyPlugin.SetHook("", weather.GetApiKey)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHook("", w.SaveConfig)
+		err = MyPlugin.SetHook("", weather.SaveConfig)
 		if err.IsError() {
 			break
 		}
 
-		err = rpc.SetHook("", w.LoadConfig)
+		err = MyPlugin.SetHook("", weather.LoadConfig)
 		if err.IsError() {
 			break
 		}
 
-		GoPluginIdentity.Callbacks.SetInitialise(w.Initialise)
+		GoPluginIdentity.Callbacks.SetInitialise(weather.Initialise)
 
-		err = rpc.Validate()
+		err = MyPlugin.Validate()
 		if err.IsError() {
 			break
 		}
 	}
 
-	return rpc, err
-}
-
-// InitNative - Set up a native based plugin.
-func InitNative(w *Weather) (GoPlugLoader.NativePluginInterface, Return.Error) {
-	var native GoPlugLoader.NativePluginInterface
-	var err Return.Error
-
-	for range Only.Once {
-		native = GoPlugLoader.NewNativePluginInterface()
-		err = native.NewNativePlugin()
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetIdentity(&GoPluginIdentity)
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetHandshakeConfig(Plugin.HandshakeConfig)
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetHook("", w.Get)
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetHook("", w.SetLocation, "")
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetHook("", w.SetUnit, "")
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetHook("", w.SetLanguage, "")
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetHook("", w.SetApiKey, "")
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetHook("", w.GetApiKey)
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetHook("", w.SaveConfig)
-		if err.IsError() {
-			break
-		}
-
-		err = native.SetHook("", w.LoadConfig)
-		if err.IsError() {
-			break
-		}
-
-		GoPluginIdentity.Callbacks.SetInitialise(w.Initialise)
-
-		err = native.Validate()
-		if err.IsError() {
-			break
-		}
-	}
-
-	return native, err
+	return err
 }
 
 //
@@ -248,7 +169,7 @@ func (w *Weather) Get(hook Plugin.HookStruct, args ...any) (Plugin.HookResponse,
 			break
 		}
 
-		ret, err = Plugin.NewHookResponse(weather)
+		ret, err = Plugin.NewHookResponse(*weather)
 	}
 
 	return ret, err
@@ -292,7 +213,7 @@ func (w *Weather) SetLanguage(hook Plugin.HookStruct, args ...any) (Plugin.HookR
 	return Plugin.HookResponseNil, Return.Ok
 }
 
-func (w *Weather) Initialise(ctx Plugin.Interface, args ...any) Return.Error {
+func (w *Weather) Initialise(ctx Plugin.PluginDataInterface, args ...any) Return.Error {
 	var err Return.Error
 
 	for range Only.Once {

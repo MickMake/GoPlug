@@ -17,14 +17,15 @@ import (
 // ---------------------------------------------------------------------------------------------------- //
 // 1. The root - starts it all off.
 type GoPluginMaster struct {
-	Plugin.Plugin
+	Plugin.PluginData
 }
 
 func (g *GoPluginMaster) Server(b *goplugin.MuxBroker) (any, error) {
 	utils.DEBUG()
 	ret := RpcPlugin{
-		Plugin: g.Plugin, // Make local plugin data accessible to client.
+		PluginData: g.PluginData, // Make local plugin data accessible to client.
 	}
+	gob.Register(Plugin.PluginData{})
 	gob.Register(store.ValueStruct{})
 	gob.Register(RpcPlugin{})
 	return &ret, nil
@@ -32,6 +33,7 @@ func (g *GoPluginMaster) Server(b *goplugin.MuxBroker) (any, error) {
 
 func (g *GoPluginMaster) Client(b *goplugin.MuxBroker, c *rpc.Client) (any, error) {
 	utils.DEBUG()
+	gob.Register(Plugin.PluginData{})
 	gob.Register(store.ValueStruct{})
 	gob.Register(RpcPlugin{})
 	return &RpcPluginClient{Client: c}, nil
@@ -48,18 +50,17 @@ type RpcPluginClient struct {
 }
 
 func (g *RpcPluginClient) GetData() Plugin.DynamicData {
-	utils.DEBUG()
 	g.Error = Return.Ok
 	var resp Plugin.DynamicData
 	err := g.Client.Call("Plugin.GetData", new(any), &resp)
 	if err != nil {
 		g.Error.SetError(err)
+		resp.Error.SetError(err)
 	}
 	return resp
 }
 
 func (g *RpcPluginClient) Identify() Plugin.Identity {
-	utils.DEBUG()
 	g.Error = Return.Ok
 	var resp Plugin.Identity
 	err := g.Client.Call("Plugin.Identify", new(any), &resp)
@@ -70,7 +71,6 @@ func (g *RpcPluginClient) Identify() Plugin.Identity {
 }
 
 func (g *RpcPluginClient) IdentifyString() string {
-	utils.DEBUG()
 	g.Error = Return.Ok
 	var resp string
 	err := g.Client.Call("Plugin.IdentifyString", new(any), &resp)
@@ -82,7 +82,6 @@ func (g *RpcPluginClient) IdentifyString() string {
 }
 
 func (g *RpcPluginClient) CallHook(name string, args ...any) (Plugin.HookResponse, Return.Error) {
-	utils.DEBUG()
 	g.Error = Return.Ok
 	var resp Plugin.HookResponse
 	err := g.Client.Call("Plugin.CallHook", &Plugin.HookCallArgs{Name: name, Args: args}, &resp)
@@ -113,28 +112,24 @@ type RpcPluginServer struct {
 }
 
 func (s *RpcPluginServer) GetData(_ any, resp *Plugin.DynamicData) error {
-	utils.DEBUG()
 	s.Error = Return.Ok
 	*resp = s.Impl.GetData()
 	return s.Error.GetError()
 }
 
 func (s *RpcPluginServer) Identify(_ any, resp *Plugin.Identity) error {
-	utils.DEBUG()
 	s.Error = Return.Ok
 	*resp = s.Impl.Identify()
 	return s.Error.GetError()
 }
 
 func (s *RpcPluginServer) IdentifyString(_ any, resp *string) error {
-	utils.DEBUG()
 	s.Error = Return.Ok
 	*resp = s.Impl.IdentifyString()
 	return s.Error.GetError()
 }
 
 func (s *RpcPluginServer) CallHook(args Plugin.HookCallArgs, resp *Plugin.HookResponse) error {
-	utils.DEBUG()
 	s.Error = Return.Ok
 	*resp, s.Error = s.Impl.CallHook(args.Name, args.Args...)
 	return s.Error.GetError()

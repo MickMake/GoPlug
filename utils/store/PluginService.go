@@ -65,6 +65,7 @@ type PluginServiceInterface interface {
 }
 
 // NewPluginServiceStore - Create a PluginServiceInterface interface structure instance.
+//goland:noinspection GoUnusedExportedFunction
 func NewPluginServiceStore() PluginServiceInterface {
 	ret := NewPluginServiceStruct()
 	return &ret
@@ -74,20 +75,19 @@ func NewPluginServiceStore() PluginServiceInterface {
 // PluginServiceStruct
 // ---------------------------------------------------------------------------------------------------- //
 type PluginServiceStruct struct {
-	Identity       string
-	RpcServices    RpcServiceMap
-	NativeServices NativeServiceMap
-	Master         bool
-	Error          Return.Error
-	// PluginServiceStore
+	Identity       string `json:"identity,omitempty"`
+	rpcServices    RpcServiceMap
+	nativeServices NativeServiceMap
+	Master         bool         `json:"master,omitempty"`
+	Error          Return.Error `json:"error"`
 }
 
 // NewPluginServiceStruct - Create a PluginServiceStruct structure instance.
 func NewPluginServiceStruct() PluginServiceStruct {
 	return PluginServiceStruct{
 		Identity:       "",
-		RpcServices:    make(RpcServiceMap),
-		NativeServices: make(NativeServiceMap),
+		rpcServices:    make(RpcServiceMap),
+		nativeServices: make(NativeServiceMap),
 		Master:         false,
 		Error:          Return.New(),
 	}
@@ -117,11 +117,11 @@ func (p *PluginServiceStruct) GetPluginIdentity() string {
 
 // ServiceExists - Check if a key exists.
 func (p *PluginServiceStruct) ServiceExists(name string) bool {
-	_, err := p.NativeServices.Get(name)
+	_, err := p.nativeServices.Get(name)
 	if !err.IsError() {
 		return true
 	}
-	_, err = p.RpcServices.Get(name)
+	_, err = p.rpcServices.Get(name)
 	if !err.IsError() {
 		return true
 	}
@@ -136,13 +136,13 @@ func (p *PluginServiceStruct) ServiceNotExists(name string) bool {
 // GetAsRpcPluginSet - Get PluginServiceInterface as goplugin.PluginSet.
 func (p *PluginServiceStruct) GetAsRpcPluginSet() goplugin.PluginSet {
 	p.Error = Return.Ok
-	return goplugin.PluginSet(p.RpcServices)
+	return goplugin.PluginSet(p.rpcServices)
 }
 
 // GetRpcService - Get a key's value.
 func (p *PluginServiceStruct) GetRpcService(name string) goplugin.Plugin {
 	var service goplugin.Plugin
-	service, p.Error = p.RpcServices.Get(name)
+	service, p.Error = p.rpcServices.Get(name)
 	return service
 }
 
@@ -150,24 +150,24 @@ func (p *PluginServiceStruct) GetRpcService(name string) goplugin.Plugin {
 func (p *PluginServiceStruct) SetRpcService(name string, value goplugin.Plugin) Return.Error {
 	p.Error = Return.Ok
 	name = strings.TrimSpace(name)
-	if p.RpcServices == nil {
-		p.RpcServices = make(RpcServiceMap)
+	if p.rpcServices == nil {
+		p.rpcServices = make(RpcServiceMap)
 	}
 
-	p.RpcServices[name] = value
+	p.rpcServices[name] = value
 	return p.Error
 }
 
 // GetAsNativePluginSet - Get PluginServiceInterface as goplugin.PluginSet.
 func (p *PluginServiceStruct) GetAsNativePluginSet() NativeServiceMap {
 	p.Error = Return.Ok
-	return p.NativeServices
+	return p.nativeServices
 }
 
 // GetNativeService - Get a key's value.
 func (p *PluginServiceStruct) GetNativeService(name string) sysPlugin.Plugin {
 	var service sysPlugin.Plugin
-	service, p.Error = p.NativeServices.Get(name)
+	service, p.Error = p.nativeServices.Get(name)
 	return service
 }
 
@@ -175,24 +175,23 @@ func (p *PluginServiceStruct) GetNativeService(name string) sysPlugin.Plugin {
 func (p *PluginServiceStruct) SetNativeService(name string, value sysPlugin.Plugin) Return.Error {
 	p.Error = Return.Ok
 	name = strings.TrimSpace(name)
-	if p.NativeServices == nil {
-		p.NativeServices = make(NativeServiceMap)
+	if p.nativeServices == nil {
+		p.nativeServices = make(NativeServiceMap)
 	}
 
-	p.NativeServices[name] = value
+	p.nativeServices[name] = value
 	return p.Error
 }
 
 // CountServices - Return the number of entries.
 func (p *PluginServiceStruct) CountServices() int {
 	p.Error = Return.Ok
-	return len(p.NativeServices) + len(p.RpcServices)
+	return len(p.nativeServices) + len(p.rpcServices)
 }
 
 func (p *PluginServiceStruct) ListServices() RpcServiceMap {
 	p.Error = Return.Ok
-	// TODO implement me
-	panic("implement me")
+	return p.rpcServices
 }
 
 func (p *PluginServiceStruct) PrintServices() {
@@ -204,7 +203,7 @@ func (p *PluginServiceStruct) PrintServices() {
 func (p PluginServiceStruct) String() string {
 	var ret string
 	ret += fmt.Sprintf("# Available plugins from identity '%s'\n", p.Identity)
-	for name, plug := range p.RpcServices {
+	for name, plug := range p.rpcServices {
 		ret += fmt.Sprintf("\t[%s]: %s\n", name, plug)
 	}
 	return ret
